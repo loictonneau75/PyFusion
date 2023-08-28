@@ -1,5 +1,5 @@
 import os
-
+from collections import defaultdict
 
 def get_files_and_path(directory: str, extension: str):
     file_list = []
@@ -25,19 +25,19 @@ def get_text(path_list: list, file_list: list):
     main = []
     scripts = []
     for path in path_list:
-        with open (path, "r") as file:
-            for line in file:
-                if line.startswith("import") or line.startswith("from"):
-                    if line not in existing_import:
-                        if check_words_in_string(file_list, line):
-                            existing_import.append(line)
-                else:
-                    if path.endswith("main.py"):
-                        main.append(line)
-                    elif not path.endswith(output_filename):
-                        scripts.append(line)
+        if not path.endswith(output_filename):
+            with open (path, "r") as file:
+                    for line in file:
+                        if line.startswith("import") or line.startswith("from"):
+                            if line not in existing_import:
+                                if check_words_in_string(file_list, line):
+                                    existing_import.append(line)
+                        else:
+                            if path.endswith("main.py"):
+                                main.append(line)
+                            else:
+                                scripts.append(line)
     scripts += main
-
     return existing_import, scripts
 
 def create_test_file(file_path, imports, scripts):
