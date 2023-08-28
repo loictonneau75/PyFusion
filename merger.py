@@ -49,12 +49,16 @@ def create_output_directory(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-directory_path = r"C:\Users\loict\Desktop\pwd_managerV2"
-output_directory_name = "test"
-output_filename = "test.py"
+def main():
+    directory_path = r"C:\Users\loict\Desktop\pwd_managerV2"
+    output_directory_name = "test"
+    output_filename = "test.py"
 
-create_output_directory(os.path.join(directory_path, output_directory_name))
-file_path = os.path.join(directory_path, output_directory_name, output_filename)
-file_list, path_list = get_files_and_path(directory_path, ".py")
-imports, scripts = get_text(path_list, file_list)
-create_test_file(file_path, imports, scripts)
+    create_output_directory(os.path.join(directory_path, output_directory_name))
+    file_path = os.path.join(directory_path, output_directory_name, output_filename)
+    file_list, path_list = get_files_and_path(directory_path, ".py")
+    imports, scripts = get_text(path_list, file_list)
+    create_test_file(file_path, imports, scripts)
+
+if __name__ == "__main__":
+    main()
