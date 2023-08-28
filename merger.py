@@ -15,10 +15,8 @@ def get_files_and_path(directory: str, extension: str):
     return file_list, path_list
 
 def check_words_in_string(word_list: list, input_string: str):
-    for word in word_list:
-        if word in input_string:
-            return False
-    return True
+    return all(word not in input_string for word in word_list)
+
 
 def get_text(path_list: list, file_list: list):
     existing_import = []
