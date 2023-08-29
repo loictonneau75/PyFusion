@@ -16,6 +16,10 @@ def is_windows_light_mode():
         print("Erreur lors de la détection du thème:", e)
         return None
 
+def create_output_directory(path: str):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
 def get_files_and_path(directory: str, extension: str):
     file_list = []
     path_list = []
@@ -32,6 +36,19 @@ def get_files_and_path(directory: str, extension: str):
 def check_words_in_string(word_list: list, input_string: str):
     return all(word not in input_string for word in word_list)
 
+def process_import(line: str, existing_import: list, file_list: list):
+    if line.startswith(("import","from")):
+        if line not in existing_import:
+            if check_words_in_string(file_list, line):
+                existing_import.append(line)
+
+def process_content(line: str, path: str, main: list, scripts: list):
+    if not line.startswith(("import","from")):
+        if path.endswith("main.py"):
+            main.append(line)
+        else:
+            scripts.append(line)
+
 def get_text(path_list: list, file_list: list, output_file_name: str):
     existing_import = []
     main = []
@@ -39,35 +56,22 @@ def get_text(path_list: list, file_list: list, output_file_name: str):
     for path in path_list:
         if not path.endswith(output_file_name):
             with open (path, "r") as file:
-                    for line in file:
-                        if line.startswith(("import","from")):
-                            if line not in existing_import:
-                                if check_words_in_string(file_list, line):
-                                    existing_import.append(line)
-                        else:
-                            if path.endswith("main.py"):
-                                main.append(line)
-                            else:
-                                scripts.append(line)
+                for line in file:
+                    process_import(line, existing_import, file_list)
+                    process_content(line, path, main, scripts)
     scripts += main
     return existing_import, scripts
 
-def create_test_file(file_path: str, imports: str, scripts: str):
+def create_merged_file(file_path: str, imports: str, scripts: str):
     with open(file_path, "w") as output_file:
         output_file.writelines(imports)
         output_file.writelines(scripts)
 
-def create_output_directory(path: str):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
 def execute_script(folder_entry: ttk.Entry, result_label: ttk.Label):
     directory_path = folder_entry.get()
-
     if not directory_path:
         result_label.config(text = "Veuillez sélectionner un dossier")
         return
-    
     if not os.path.exists(directory_path):
         result_label.config(text="Le chemin spécifié n'existe pas.")
         return
@@ -75,12 +79,13 @@ def execute_script(folder_entry: ttk.Entry, result_label: ttk.Label):
     output_directory_name = "test"
     output_file_name = "test.py"
 
-    create_output_directory(os.path.join(directory_path, output_directory_name))
     output_directory_path = os.path.join(directory_path, output_directory_name)
+    create_output_directory(output_directory_path)
+    
     file_path = os.path.join(output_directory_path, output_file_name)
     file_list, path_list = get_files_and_path(directory_path, ".py")
     imports, scripts = get_text(path_list, file_list, output_file_name)
-    create_test_file(file_path, imports, scripts)
+    create_merged_file(file_path, imports, scripts)
 
     result_label.config(text="Script exécuté avec succès !")
     os.system(f'explorer "{os.path.abspath(output_directory_path)}"')
