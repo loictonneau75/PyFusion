@@ -1,5 +1,6 @@
 import os
 import winreg
+import subprocess
 import tkinter as tk
 from tkinter import filedialog
 import ttkbootstrap as ttk
@@ -52,13 +53,23 @@ def create_output_directory(path: str):
 
 def execute_script(folder_entry: ttk.Entry, result_label: ttk.Label):
     directory_path = folder_entry.get()
+
+    if not directory_path:
+        result_label.config(text = "Veuillez sélectionner un dossier")
+        return
+    
+    if not os.path.exists(directory_path):
+        result_label.config(text="Le chemin spécifié n'existe pas.")
+        return
+    
+    subprocess.Popen(["explorer", directory_path])
     output_directory_name = "test"
-    output_filename = "test.py"
+    output_file_name = "test.py"
 
     create_output_directory(os.path.join(directory_path, output_directory_name))
-    file_path = os.path.join(directory_path, output_directory_name, output_filename)
+    file_path = os.path.join(directory_path, output_directory_name, output_file_name)
     file_list, path_list = get_files_and_path(directory_path, ".py")
-    imports, scripts = get_text(path_list, file_list)
+    imports, scripts = get_text(path_list, file_list, output_file_name)
     create_test_file(file_path, imports, scripts)
 
     result_label.config(text="Script exécuté avec succès !")
@@ -78,7 +89,7 @@ def main():
     theme = "flatly" if is_windows_light_mode() else "darkly"
     root = ttk.Window(themename = theme)
     root.title("Script Merger")
-    root.config()
+    root.resizable(False, False)
 
     folder_label = ttk.Label(root, text="Choisissez le dossier cible:")
     folder_entry = ttk.Entry(root)
@@ -92,6 +103,7 @@ def main():
     root.columnconfigure(1, pad = 10)
     root.rowconfigure(0, pad = 10)
     root.rowconfigure(1, pad = 10)
+    root.rowconfigure(2, pad = 10)
 
     folder_label.grid(columnspan = 2, row = 0)
     folder_entry.grid(column = 0, row = 1)
