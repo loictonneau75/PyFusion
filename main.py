@@ -1,6 +1,5 @@
 import os
 import winreg
-import subprocess
 import tkinter as tk
 from tkinter import filedialog
 import ttkbootstrap as ttk
@@ -62,17 +61,18 @@ def execute_script(folder_entry: ttk.Entry, result_label: ttk.Label):
         result_label.config(text="Le chemin spécifié n'existe pas.")
         return
     
-    subprocess.Popen(["explorer", directory_path])
     output_directory_name = "test"
     output_file_name = "test.py"
 
     create_output_directory(os.path.join(directory_path, output_directory_name))
-    file_path = os.path.join(directory_path, output_directory_name, output_file_name)
+    output_directory_path = os.path.join(directory_path, output_directory_name)
+    file_path = os.path.join(output_directory_path, output_file_name)
     file_list, path_list = get_files_and_path(directory_path, ".py")
     imports, scripts = get_text(path_list, file_list, output_file_name)
     create_test_file(file_path, imports, scripts)
 
     result_label.config(text="Script exécuté avec succès !")
+    os.system(f'explorer "{os.path.abspath(output_directory_path)}"')
 
 def is_windows_light_mode():
     try:
