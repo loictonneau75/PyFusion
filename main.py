@@ -5,6 +5,17 @@ from tkinter import filedialog
 import ttkbootstrap as ttk
 
 
+def is_windows_light_mode():
+    try:
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
+        apps_use_light_theme, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+        winreg.CloseKey(key)
+        return  apps_use_light_theme
+    
+    except Exception as e:
+        print("Erreur lors de la détection du thème:", e)
+        return None
+
 def get_files_and_path(directory: str, extension: str):
     file_list = []
     path_list = []
@@ -73,17 +84,6 @@ def execute_script(folder_entry: ttk.Entry, result_label: ttk.Label):
 
     result_label.config(text="Script exécuté avec succès !")
     os.system(f'explorer "{os.path.abspath(output_directory_path)}"')
-
-def is_windows_light_mode():
-    try:
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
-        apps_use_light_theme, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
-        winreg.CloseKey(key)
-        return  apps_use_light_theme
-    
-    except Exception as e:
-        print("Erreur lors de la détection du thème:", e)
-        return None
 
 def main():
     theme = "flatly" if is_windows_light_mode() else "darkly"
