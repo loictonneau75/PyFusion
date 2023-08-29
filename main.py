@@ -6,6 +6,12 @@ import ttkbootstrap as ttk
 
 
 def is_windows_light_mode():
+    """
+    Check if the Windows operating system is using light mode.
+
+    Returns:
+        bool: True if Windows is in light mode, False otherwise.
+    """
     try:
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
         apps_use_light_theme, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
@@ -17,10 +23,28 @@ def is_windows_light_mode():
         return None
 
 def create_output_directory(path: str):
+    """
+    Create an output directory if it doesn't exist.
+
+    Args:
+        path (str): The path of the directory to create.
+    """
     if not os.path.exists(path):
         os.makedirs(path)
 
 def get_files_and_path(directory: str, extension: str):
+    """
+    Get a list of files and their paths with a specific extension within a directory.
+
+    Args:
+        directory (str): The target directory to search for files.
+        extension (str): The file extension to filter.
+
+    Returns:
+        Tuple[list, list]: A tuple containing two lists - file_list and path_list.
+            file_list: List of file names (without extension).
+            path_list: List of corresponding file paths.
+    """
     file_list = []
     path_list = []
 
@@ -34,15 +58,42 @@ def get_files_and_path(directory: str, extension: str):
     return file_list, path_list
 
 def check_words_in_string(word_list: list, input_string: str):
+    """
+    Check if any of the words in a list are present in the input string.
+
+    Args:
+        word_list (list): List of words to check.
+        input_string (str): The input string to search in.
+
+    Returns:
+        bool: True if none of the words are found, False otherwise.
+    """
     return all(word not in input_string for word in word_list)
 
 def process_import(line: str, existing_import: list, file_list: list):
+    """
+    Process an import line and update the existing import list.
+
+    Args:
+        line (str): The import line to process.
+        existing_import (list): List of existing import lines.
+        file_list (list): List of file names to check against.
+    """
     if line.startswith(("import","from")):
         if line not in existing_import:
             if check_words_in_string(file_list, line):
                 existing_import.append(line)
 
 def process_content(line: str, path: str, main: list, scripts: list):
+    """
+    Categorize a line of code into the main section or the scripts section.
+
+    Args:
+        line (str): The line of code to categorize.
+        path (str): The path of the file being processed.
+        main (list): List to store lines for the main section.
+        scripts (list): List to store lines for the scripts section.
+    """
     if not line.startswith(("import","from")):
         if path.endswith("main.py"):
             main.append(line)
@@ -50,6 +101,19 @@ def process_content(line: str, path: str, main: list, scripts: list):
             scripts.append(line)
 
 def get_text(path_list: list, file_list: list, output_file_name: str):
+    """
+    Process the content of input files and separate imports from scripts.
+
+    Args:
+        path_list (list): List of file paths to process.
+        file_list (list): List of file names to check against.
+        output_file_name (str): Name of the output file.
+
+    Returns:
+        Tuple[list, list]: A tuple containing two lists - existing_import and scripts.
+            existing_import: List of existing import lines.
+            scripts: List of lines for the merged script.
+    """
     existing_import = []
     main = []
     scripts = []
@@ -63,11 +127,26 @@ def get_text(path_list: list, file_list: list, output_file_name: str):
     return existing_import, scripts
 
 def create_merged_file(file_path: str, imports: str, scripts: str):
+    """
+    Create a merged output file with imports and scripts.
+
+    Args:
+        file_path (str): Path of the output file to create.
+        imports (str): Import lines to write into the output file.
+        scripts (str): Script lines to write into the output file.
+    """
     with open(file_path, "w") as output_file:
         output_file.writelines(imports)
         output_file.writelines(scripts)
 
 def execute_script(folder_entry: ttk.Entry, result_label: ttk.Label):
+    """
+    Execute the script merging process based on user input.
+
+    Args:
+        folder_entry (ttk.Entry): GUI entry widget for folder selection.
+        result_label (ttk.Label): GUI label widget to display results.
+    """
     directory_path = folder_entry.get()
     if not directory_path:
         result_label.config(text = "Veuillez sélectionner un dossier")
@@ -91,6 +170,19 @@ def execute_script(folder_entry: ttk.Entry, result_label: ttk.Label):
     os.system(f'explorer "{os.path.abspath(output_directory_path)}"')
 
 def main():
+    """
+    Entry point of the script. Initializes the GUI and executes the script merging process.
+
+    This function sets up the graphical user interface (GUI) using the `tkinter` library.
+    It creates labels, entry fields, buttons, and configures their layout.
+    The 'Exécuter' button triggers the script merging process using the `execute_script()` function.
+    
+    Note:
+        This function relies on other functions and elements defined in the script.
+
+    Returns:
+        None
+    """
     theme = "flatly" if is_windows_light_mode() else "darkly"
     root = ttk.Window(themename = theme)
     root.title("Script Merger")
