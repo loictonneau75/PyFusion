@@ -1,3 +1,30 @@
+"""
+Script Merger App
+
+This script provides a graphical user interface for merging Python script files
+within a specified directory into a single output file.
+
+The user can choose a target directory, and the script will scan the directory
+for Python script files (with the ".py" extension), extract their import statements
+and content, and merge them into a single output file named "test.py" located in
+a subdirectory named "test".
+
+Dependencies:
+- os
+- winreg
+- tkinter
+- filedialog from tkinter
+- ttkbootstrap
+
+Usage:
+Run this script to launch the Script Merger App. Choose a target directory
+containing Python script files, and click the "Parcourir" button to select the
+directory. After that, click the "Éxécuter" button to merge the script files and
+create the output file.
+
+Author: TONNEAU Loïc
+"""
+
 import os
 import winreg
 import tkinter as tk
@@ -5,210 +32,302 @@ from tkinter import filedialog
 import ttkbootstrap as ttk
 
 
-def is_windows_light_mode():
+class ScriptMergerApp(ttk.Window):
     """
-    Check if the Windows operating system is using light mode.
+    Main application class for the Script Merger App.
 
-    Returns:
-        bool: True if Windows is in light mode, False otherwise.
-    """
-    try:
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
-        apps_use_light_theme, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
-        winreg.CloseKey(key)
-        return  apps_use_light_theme
-    
-    except Exception as e:
-        print("Erreur lors de la détection du thème:", e)
-        return None
-
-def create_output_directory(path: str):
-    """
-    Create an output directory if it doesn't exist.
-
-    Args:
-        path (str): The path of the directory to create.
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-def get_files_and_path(directory: str, extension: str):
-    """
-    Get a list of files and their paths with a specific extension within a directory.
-
-    Args:
-        directory (str): The target directory to search for files.
-        extension (str): The file extension to filter.
-
-    Returns:
-        Tuple[list, list]: A tuple containing two lists - file_list and path_list.
-            file_list: List of file names (without extension).
-            path_list: List of corresponding file paths.
-    """
-    file_list = []
-    path_list = []
-
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.endswith(extension):
-                file_name, _ = os.path.splitext(file)
-                file_list.append(file_name)
-                path_list.append(os.path.join(root, file))
-
-    return file_list, path_list
-
-def check_words_in_string(word_list: list, input_string: str):
-    """
-    Check if any of the words in a list are present in the input string.
-
-    Args:
-        word_list (list): List of words to check.
-        input_string (str): The input string to search in.
-
-    Returns:
-        bool: True if none of the words are found, False otherwise.
-    """
-    return all(word not in input_string for word in word_list)
-
-def process_import(line: str, existing_import: list, file_list: list):
-    """
-    Process an import line and update the existing import list.
-
-    Args:
-        line (str): The import line to process.
-        existing_import (list): List of existing import lines.
-        file_list (list): List of file names to check against.
-    """
-    if line.startswith(("import","from")):
-        if line not in existing_import:
-            if check_words_in_string(file_list, line):
-                existing_import.append(line)
-
-def process_content(line: str, path: str, main: list, scripts: list):
-    """
-    Categorize a line of code into the main section or the scripts section.
-
-    Args:
-        line (str): The line of code to categorize.
-        path (str): The path of the file being processed.
-        main (list): List to store lines for the main section.
-        scripts (list): List to store lines for the scripts section.
-    """
-    if not line.startswith(("import","from")):
-        if path.endswith("main.py"):
-            main.append(line)
-        else:
-            scripts.append(line)
-
-def get_text(path_list: list, file_list: list, output_file_name: str):
-    """
-    Process the content of input files and separate imports from scripts.
-
-    Args:
-        path_list (list): List of file paths to process.
-        file_list (list): List of file names to check against.
-        output_file_name (str): Name of the output file.
-
-    Returns:
-        Tuple[list, list]: A tuple containing two lists - existing_import and scripts.
-            existing_import: List of existing import lines.
-            scripts: List of lines for the merged script.
-    """
-    existing_import = []
-    main = []
-    scripts = []
-    for path in path_list:
-        if not path.endswith(output_file_name):
-            with open (path, "r") as file:
-                for line in file:
-                    process_import(line, existing_import, file_list)
-                    process_content(line, path, main, scripts)
-    scripts += main
-    return existing_import, scripts
-
-def create_merged_file(file_path: str, imports: str, scripts: str):
-    """
-    Create a merged output file with imports and scripts.
-
-    Args:
-        file_path (str): Path of the output file to create.
-        imports (str): Import lines to write into the output file.
-        scripts (str): Script lines to write into the output file.
-    """
-    with open(file_path, "w") as output_file:
-        output_file.writelines(imports)
-        output_file.writelines(scripts)
-
-def execute_script(folder_entry: ttk.Entry, result_label: ttk.Label):
-    """
-    Execute the script merging process based on user input.
-
-    Args:
-        folder_entry (ttk.Entry): GUI entry widget for folder selection.
-        result_label (ttk.Label): GUI label widget to display results.
-    """
-    directory_path = folder_entry.get()
-    if not directory_path:
-        result_label.config(text = "Veuillez sélectionner un dossier")
-        return
-    if not os.path.exists(directory_path):
-        result_label.config(text="Le chemin spécifié n'existe pas.")
-        return
-    
-    output_directory_name = "test"
-    output_file_name = "test.py"
-
-    output_directory_path = os.path.join(directory_path, output_directory_name)
-    create_output_directory(output_directory_path)
-    
-    file_path = os.path.join(output_directory_path, output_file_name)
-    file_list, path_list = get_files_and_path(directory_path, ".py")
-    imports, scripts = get_text(path_list, file_list, output_file_name)
-    create_merged_file(file_path, imports, scripts)
-
-    result_label.config(text="Script exécuté avec succès !")
-    os.system(f'explorer "{os.path.abspath(output_directory_path)}"')
-
-def main():
-    """
-    Entry point of the script. Initializes the GUI and executes the script merging process.
-
-    This function sets up the graphical user interface (GUI) using the `tkinter` library.
-    It creates labels, entry fields, buttons, and configures their layout.
-    The 'Exécuter' button triggers the script merging process using the `execute_script()` function.
-    
-    Note:
-        This function relies on other functions and elements defined in the script.
-
-    Returns:
+    Attributes:
         None
+
+    Methods:
+        __init__(): Initializes the application.
+        is_windows_light_mode(): Checks if Windows is in light mode.
+        configure_grid(): Configures the layout grid.
+        create_widgets(): Creates and places GUI widgets.
+        place_widgets(): Places widgets within the grid.
     """
-    theme = "flatly" if is_windows_light_mode() else "darkly"
-    root = ttk.Window(themename = theme)
-    root.title("Script Merger")
-    root.resizable(False, False)
+    def __init__(self):
+        """
+        Initialize the ScriptMergerApp.
 
-    folder_label = ttk.Label(root, text="Choisissez le dossier cible:")
-    folder_entry = ttk.Entry(root)
-    folder_button = ttk.Button(root, text="Parcourir", bootstyle = "secondary", 
-                               command=lambda: folder_entry.insert(tk.END, filedialog.askdirectory()))
-    execute_button = ttk.Button(root, text="Exécuter", bootstyle = "success", 
-                                command = lambda: execute_script(folder_entry,result_label))
-    result_label = ttk.Label(root, text="")
+        Args:
+            None
 
-    root.columnconfigure(0, pad = 10)
-    root.columnconfigure(1, pad = 10)
-    root.rowconfigure(0, pad = 10)
-    root.rowconfigure(1, pad = 10)
-    root.rowconfigure(2, pad = 10)
+        Returns:
+            None
+        """
+        theme = "flatly" if self.is_windows_light_mode() else "darkly"
+        super().__init__(themename=theme)
+        self.title("Script Merger")
+        self.resizable(False, False)
+        self.configure_grid()
+        self.create_widgets()
 
-    folder_label.grid(columnspan = 2, row = 0)
-    folder_entry.grid(column = 0, row = 1)
-    folder_button.grid(column = 1, row = 1)
-    execute_button.grid(columnspan = 2, row = 2)
-    result_label.grid(columnspan = 2, row = 3)
+    def is_windows_light_mode(self):
+        """
+        Check if Windows is in light mode.
 
-    root.mainloop()
+        Args:
+            None
+
+        Returns:
+            bool: True if Windows is in light mode, False otherwise.
+        """
+        try:
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
+            is_light_theme, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+            winreg.CloseKey(key)
+            return is_light_theme
+        except Exception as e:
+            print("Erreur lors de la détection du thème:", e)
+            return None
+
+    def configure_grid(self):
+        """
+        Configure the layout grid for the application.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.columnconfigure(0, pad=10)
+        self.columnconfigure(1, pad=10)
+        self.rowconfigure(0, pad=10)
+        self.rowconfigure(1, pad=10)
+        self.rowconfigure(2, pad=10)
+
+    def create_widgets(self):
+        """
+        Create GUI widgets for the application.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.folder_label = ttk.Label(self, text="Choisissez le dossier cible :")
+        self.folder_entry = ttk.Entry(self)
+        self.folder_button = ttk.Button(self, text="Parcourir", bootstyle="secondary",
+                                        command=lambda: self.folder_entry.insert(tk.END, filedialog.askdirectory()))
+        self.execute_button = ttk.Button(self, text="Éxécuter", bootstyle="success",
+                                         command=lambda: ScriptFileMerger(self.folder_entry, self.result_label))
+        self.result_label = ttk.Label(self, text="")
+        self.place_widgets()
+
+    def place_widgets(self):
+        """
+        Place widgets within the layout grid.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.folder_label.grid(columnspan=2, row=0)
+        self.folder_entry.grid(column=0, row=1)
+        self.folder_button.grid(column=1, row=1)
+        self.execute_button.grid(columnspan=2, row=2)
+        self.result_label.grid(columnspan=2, row=3)
+
+
+class ScriptFileMerger():
+    """
+    ScriptFileMerger class for merging Python script files.
+
+    Attributes:
+        extension (str): The file extension to look for.
+        target_directory (str): The target directory for script files.
+        output_directory_name (str): Name of the output directory.
+        output_directory_path (str): Path of the output directory.
+        output_file_name (str): Name of the output merged file.
+        output_file_path (str): Path of the output merged file.
+        file_list (list): List of Python script file names (without extension).
+        path_list (list): List of paths to Python script files.
+        imports (list): List of import statements.
+
+    Methods:
+        __init__(folder_entry: ttk.Entry, result_label: ttk.Label): Initialize the ScriptFileMerger.
+        create_output_directory(): Create the output directory if it doesn't exist.
+        find_python_files_in_directory(): Find Python script files in the target directory.
+        check_words_in_string(line: str): Check if any word from file_list is present in the line.
+        process_import_statement(line: str): Process import statements in the line.
+        process_script_content(line, path): Process script content based on the line and path.
+        process_content(): Process the content of script files.
+        merge_script_files(): Merge the script files into the output file.
+        start_script_merger(): Start the script merging process.
+        get_result(result_label: ttk.Label): Update the result label with the execution status.
+    """
+    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label):
+        """
+        Initialize the ScriptFileMerger.
+
+        Args:
+            folder_entry (ttk.Entry): Entry widget containing the target directory.
+            result_label (ttk.Label): Label widget to display execution results.
+
+        Returns:
+            None
+        """
+        self.extension = ".py"
+        self.target_directory = folder_entry.get()
+        if not self.target_directory:
+            result_label.config(text = "Veuillez inscrire un dossier !")
+            return
+        if not os.path.exists(self.target_directory):
+            result_label.config(text = "Le chemin spécifié n'existe pas !")
+            return
+        self.start_script_merger()
+        self.get_result(result_label)
+
+    def create_output_directory(self):
+        """
+        Create the output directory if it doesn't exist.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        if not os.path.exists(self.output_directory_path):
+            os.makedirs(self.output_directory_path)
+
+    def find_python_files_in_directory(self):
+        """
+        Find Python script files in the target directory.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.file_list = []
+        self.path_list = []
+        for root, _, files in os.walk(self.target_directory):
+            for file in files:
+                if file.endswith(self.extension):
+                    file_name, _ = os.path.splitext(file)
+                    self.file_list.append(file_name)
+                    self.path_list.append(os.path.join(root, file))
+
+    def check_words_in_string(self, line: str):
+        """
+        Check if any word from file_list is present in the line.
+
+        Args:
+            line (str): Line of text to check.
+
+        Returns:
+            bool: True if none of the words in file_list are present, False otherwise.
+        """
+        return all(word not in line for word in self.file_list)
+
+    def process_import_statement(self, line: str):
+        """
+        Process import statements in the line.
+
+        Args:
+            line (str): Line of text to process.
+
+        Returns:
+            None
+        """
+        if line.startswith(("import","from")):
+            if line not in self.imports and self.check_words_in_string(line):
+                self.imports.append(line)
+
+    def process_script_content(self, line, path):
+        """
+        Process script content based on the line and path.
+
+        Args:
+            line (str): Line of text to process.
+            path (str): Path to the script file containing the line.
+
+        Returns:
+            None
+        """
+        if not line.startswith(("import", "from")):
+            if path.endswith("main.py"):
+                self.main_file_content.append(line)
+            else:
+                self.script_content.append(line)
+
+    def process_content(self):
+        """
+        Process the content of script files.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.import_statements = []
+        self.main_file_content = []
+        self.script_content = []
+        for path in self.path_list:
+            if not path.endswith(self.output_file_name):
+                with open(path, "r") as file:
+                    for line in file:
+                        self.process_import_statement(line)
+                        self.process_script_content(line, path)
+        self.script_content += self.main_file_content
+
+    def merge_script_files(self):
+        """
+        Merge the script files into the output file.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        with open(self.output_file_path,"w") as output_file:
+            output_file.writelines(self.imports)
+            output_file.writelines(self.script_content)
+
+    def start_script_merger(self):
+        """
+        Start the script merging process.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.output_directory_name = "test"
+        self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
+        self.create_output_directory()
+
+        self.output_file_name = "test.py"
+        self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
+
+        self.find_python_files_in_directory()
+        self.process_content()
+        self.merge_script_files()
+
+    def get_result(self, result_label: ttk.Label):
+        """
+        Update the result label with the execution status.
+
+        Args:
+            result_label (ttk.Label): Label widget to display execution results.
+
+        Returns:
+            None
+        """
+        result_label.config(text = "Script exécuté avec succès !")
+        os.system(f'explorer "{os.path.abspath(self.output_directory_path)}"')
+
 
 if __name__ == "__main__":
-    main()
+    app = ScriptMergerApp()
+    app.mainloop()
