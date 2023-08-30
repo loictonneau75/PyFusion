@@ -1,13 +1,13 @@
 """
-Script Merger App
+Script Fusion App
 
 This script provides a graphical user interface for merging Python script files
 within a specified directory into a single output file.
 
 The user can choose a target directory, and the script will scan the directory
 for Python script files (with the ".py" extension), extract their import statements
-and content, and merge them into a single output file named "test.py" located in
-a subdirectory named "test".
+and content, and merge them into a single output file named "merged_scripts.py" located in
+a subdirectory named "merged_scripts".
 
 Dependencies:
 - os
@@ -17,7 +17,7 @@ Dependencies:
 - ttkbootstrap
 
 Usage:
-Run this script to launch the Script Merger App. Choose a target directory
+Run this script to launch the Script Fusion App. Choose a target directory
 containing Python script files, and click the "Parcourir" button to select the
 directory. After that, click the "Éxécuter" button to merge the script files and
 create the output file.
@@ -32,9 +32,9 @@ from tkinter import filedialog
 import ttkbootstrap as ttk
 
 
-class ScriptMergerApp(ttk.Window):
+class ScriptFusionApp(ttk.Window):
     """
-    Main application class for the Script Merger App.
+    Main application class for the Script Fusion App.
 
     Attributes:
         None
@@ -48,7 +48,7 @@ class ScriptMergerApp(ttk.Window):
     """
     def __init__(self):
         """
-        Initialize the ScriptMergerApp.
+        Initialize the ScriptFusionApp.
 
         Args:
             None
@@ -113,7 +113,7 @@ class ScriptMergerApp(ttk.Window):
         self.folder_button = ttk.Button(self, text="Parcourir", bootstyle="secondary",
                                         command=lambda: self.folder_entry.insert(tk.END, filedialog.askdirectory()))
         self.execute_button = ttk.Button(self, text="Éxécuter", bootstyle="success",
-                                         command=lambda: ScriptFileMerger(self.folder_entry, self.result_label))
+                                         command=lambda: ScriptFusion (self.folder_entry, self.result_label))
         self.result_label = ttk.Label(self, text="")
         self.place_widgets()
 
@@ -122,7 +122,7 @@ class ScriptMergerApp(ttk.Window):
         Place widgets within the layout grid.
 
         Args:
-            None
+            NoneApp
 
         Returns:
             None
@@ -134,9 +134,9 @@ class ScriptMergerApp(ttk.Window):
         self.result_label.grid(columnspan=2, row=3)
 
 
-class ScriptFileMerger():
+class ScriptFusion ():
     """
-    ScriptFileMerger class for merging Python script files.
+    ScriptFusion  class for merging Python script files.
 
     Attributes:
         extension (str): The file extension to look for.
@@ -150,7 +150,7 @@ class ScriptFileMerger():
         imports (list): List of import statements.
 
     Methods:
-        __init__(folder_entry: ttk.Entry, result_label: ttk.Label): Initialize the ScriptFileMerger.
+        __init__(folder_entry: ttk.Entry, result_label: ttk.Label): Initialize the ScriptFusion .
         create_output_directory(): Create the output directory if it doesn't exist.
         find_python_files_in_directory(): Find Python script files in the target directory.
         check_words_in_string(line: str): Check if any word from file_list is present in the line.
@@ -163,7 +163,7 @@ class ScriptFileMerger():
     """
     def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label):
         """
-        Initialize the ScriptFileMerger.
+        Initialize the ScriptFusion .
 
         Args:
             folder_entry (ttk.Entry): Entry widget containing the target directory.
@@ -303,11 +303,11 @@ class ScriptFileMerger():
         Returns:
             None
         """
-        self.output_directory_name = "test"
+        self.output_directory_name = "merged_scripts"
         self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
         self.create_output_directory()
 
-        self.output_file_name = "test.py"
+        self.output_file_name = "merged_scripts.py"
         self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
 
         self.find_python_files_in_directory()
@@ -329,5 +329,5 @@ class ScriptFileMerger():
 
 
 if __name__ == "__main__":
-    app = ScriptMergerApp()
+    app = ScriptFusionApp()
     app.mainloop()
