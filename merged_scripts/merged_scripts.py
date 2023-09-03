@@ -31,10 +31,30 @@ import tkinter as tk
 from tkinter import filedialog
 import ttkbootstrap as ttk
 
+def is_os_light_mode():
+        """
+        Check if os is in light mode.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if Windows is in light mode, False otherwise.
+        """
+        try:
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
+            is_light_theme, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+            winreg.CloseKey(key)
+            return is_light_theme
+        except Exception as e:
+            print("Erreur lors de la détection du thème:", e)
+            return None
+
 
 class ScriptFusionApp(ttk.Window):
     """
     Main application class for the Script Fusion App.
+    Contain the UI script.
 
     Attributes:
         None
@@ -56,31 +76,14 @@ class ScriptFusionApp(ttk.Window):
         Returns:
             None
         """
-        theme = "flatly" if self.is_windows_light_mode() else "darkly"
+        theme = "flatly" if is_os_light_mode() else "darkly"
         super().__init__(themename=theme)
         self.title("Script Merger")
         self.resizable(False, False)
         self.configure_grid()
         self.create_widgets()
 
-    def is_windows_light_mode(self):
-        """
-        Check if Windows is in light mode.
-
-        Args:
-            None
-
-        Returns:
-            bool: True if Windows is in light mode, False otherwise.
-        """
-        try:
-            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
-            is_light_theme, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
-            winreg.CloseKey(key)
-            return is_light_theme
-        except Exception as e:
-            print("Erreur lors de la détection du thème:", e)
-            return None
+    
 
     def configure_grid(self):
         """
@@ -226,6 +229,18 @@ class ScriptFusion ():
             bool: True if none of the words in file_list are present, False otherwise.
         """
         return all(word not in line for word in self.file_list)
+    
+    def process_comment_statement(self):
+        """
+        Process comment before the script.
+        
+        Args:
+            None
+            
+        Returns:
+            None
+        """
+        pass
 
     def process_import_statement(self, line: str):
         """
