@@ -134,7 +134,8 @@ class ScriptFusion ():
             None
         """
         if not line.startswith(("import", "from")):
-            if path.endswith("main.py"):
+            if path.endswith("__main__.py"):
+                print("oui")
                 self.main_file_content.append(line)
             else:
                 self.script_content.append(line)
