@@ -43,14 +43,18 @@ class ScriptFusion ():
         self.target_directory = folder_entry.get()
         self.label = result_label
         self.extension = extension
+        if self.check_input():
+            self.start_script_merger()
+            self.get_result()
+
+    def check_input(self) -> bool:
         if not self.target_directory:
             self.label.config(text = "Veuillez inscrire un dossier !")
-            return
+            return False
         if not os.path.exists(self.target_directory):
             self.label.config(text = "Le chemin spécifié n'existe pas !")
-            return
-        self.start_script_merger()
-        self.get_result()
+            return False
+        return  True
 
     def create_output_directory(self):
         """
