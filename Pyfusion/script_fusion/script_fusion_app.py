@@ -2,10 +2,7 @@ import tkinter as tk
 import ttkbootstrap as ttk
 from tkinter import filedialog
 
-#!: important 
-#TODO: changer cette methode !
-import sys
-sys.path.append('..')
+
 from utils import is_os_light_mode
 from .script_fusion import ScriptFusion
 

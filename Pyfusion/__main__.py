@@ -24,17 +24,10 @@ create the output file.
 
 Author: TONNEAU Loïc
 """
-import ttkbootstrap
-import tkinter
-
 
 from script_fusion.script_fusion_app import ScriptFusionApp
-from script_fusion.script_fusion import ScriptFusion
 
 
 if __name__ == "__main__":
-    print(help(ttkbootstrap))
-    print(tkinter.TkVersion)
-
-    #app = ScriptFusionApp()
-    #app.mainloop()
+    app = ScriptFusionApp()
+    app.mainloop()
