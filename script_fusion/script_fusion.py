@@ -1,140 +1,5 @@
-"""
-Script Fusion App
-
-This script provides a graphical user interface for merging Python script files
-within a specified directory into a single output file.
-
-The user can choose a target directory, and the script will scan the directory
-for Python script files (with the ".py" extension), extract their import statements
-and content, and merge them into a single output file named "merged_scripts.py" located in
-a subdirectory named "merged_scripts".
-
-Dependencies:
-- os
-- winreg
-- tkinter
-- filedialog from tkinter
-- ttkbootstrap
-
-Usage:
-Run this script to launch the Script Fusion App. Choose a target directory
-containing Python script files, and click the "Parcourir" button to select the
-directory. After that, click the "Éxécuter" button to merge the script files and
-create the output file.
-
-Author: TONNEAU Loïc
-"""
-
 import os
-import winreg
-import tkinter as tk
-from tkinter import filedialog
 import ttkbootstrap as ttk
-
-def is_os_light_mode():
-        """
-        Check if os is in light mode.
-
-        Args:
-            None
-
-        Returns:
-            bool: True if Windows is in light mode, False otherwise.
-        """
-        try:
-            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
-            is_light_theme, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
-            winreg.CloseKey(key)
-            return is_light_theme
-        except Exception as e:
-            print("Erreur lors de la détection du thème:", e)
-            return None
-
-
-class ScriptFusionApp(ttk.Window):
-    """
-    Main application class for the Script Fusion App.
-    Contain the UI script.
-
-    Attributes:
-        None
-
-    Methods:
-        __init__(): Initializes the application.
-        is_windows_light_mode(): Checks if Windows is in light mode.
-        configure_grid(): Configures the layout grid.
-        create_widgets(): Creates and places GUI widgets.
-        place_widgets(): Places widgets within the grid.
-    """
-    def __init__(self):
-        """
-        Initialize the ScriptFusionApp.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        theme = "flatly" if is_os_light_mode() else "darkly"
-        super().__init__(themename=theme)
-        self.title("Script Merger")
-        self.resizable(False, False)
-        self.configure_grid()
-        self.create_widgets()
-
-    
-
-    def configure_grid(self):
-        """
-        Configure the layout grid for the application.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        self.columnconfigure(0, pad=10)
-        self.columnconfigure(1, pad=10)
-        self.rowconfigure(0, pad=10)
-        self.rowconfigure(1, pad=10)
-        self.rowconfigure(2, pad=10)
-
-    def create_widgets(self):
-        """
-        Create GUI widgets for the application.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        self.folder_label = ttk.Label(self, text="Choisissez le dossier cible :")
-        self.folder_entry = ttk.Entry(self)
-        self.folder_button = ttk.Button(self, text="Parcourir", bootstyle="secondary",
-                                        command=lambda: self.folder_entry.insert(tk.END, filedialog.askdirectory()))
-        self.execute_button = ttk.Button(self, text="Éxécuter", bootstyle="success",
-                                         command=lambda: ScriptFusion (self.folder_entry, self.result_label))
-        self.result_label = ttk.Label(self, text="")
-        self.place_widgets()
-
-    def place_widgets(self):
-        """
-        Place widgets within the layout grid.
-
-        Args:
-            NoneApp
-
-        Returns:
-            None
-        """
-        self.folder_label.grid(columnspan=2, row=0)
-        self.folder_entry.grid(column=0, row=1)
-        self.folder_button.grid(column=1, row=1)
-        self.execute_button.grid(columnspan=2, row=2)
-        self.result_label.grid(columnspan=2, row=3)
 
 
 class ScriptFusion ():
@@ -150,7 +15,7 @@ class ScriptFusion ():
         output_file_path (str): Path of the output merged file.
         file_list (list): List of Python script file names (without extension).
         path_list (list): List of paths to Python script files.
-        imports (list): List of import statements.
+        import_statements (list): List of import statements.
 
     Methods:
         __init__(folder_entry: ttk.Entry, result_label: ttk.Label): Initialize the ScriptFusion .
@@ -240,6 +105,7 @@ class ScriptFusion ():
         Returns:
             None
         """
+        #TODO: récuperer le commentaire de presnetation de l'appli et le metter en haut du fichier fusioné
         pass
 
     def process_import_statement(self, line: str):
@@ -253,8 +119,8 @@ class ScriptFusion ():
             None
         """
         if line.startswith(("import","from")):
-            if line not in self.imports and self.check_words_in_string(line):
-                self.imports.append(line)
+            if line not in self.import_statements and self.check_words_in_string(line):
+                self.import_statements.append(line)
 
     def process_script_content(self, line, path):
         """
@@ -305,7 +171,7 @@ class ScriptFusion ():
             None
         """
         with open(self.output_file_path,"w") as output_file:
-            output_file.writelines(self.imports)
+            output_file.writelines(self.import_statements)
             output_file.writelines(self.script_content)
 
     def start_script_merger(self):
@@ -341,8 +207,3 @@ class ScriptFusion ():
         """
         result_label.config(text = "Script exécuté avec succès !")
         os.system(f'explorer "{os.path.abspath(self.output_directory_path)}"')
-
-
-if __name__ == "__main__":
-    app = ScriptFusionApp()
-    app.mainloop()
