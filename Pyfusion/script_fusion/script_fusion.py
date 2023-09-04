@@ -27,9 +27,9 @@ class ScriptFusion ():
         process_content(): Process the content of script files.
         merge_script_files(): Merge the script files into the output file.
         start_script_merger(): Start the script merging process.
-        get_result(result_label: ttk.Label): Update the result label with the execution status.
+        get_result(): Update the result label with the execution status.
     """
-    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label):
+    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label, extension = ".py"):
         """
         Initialize the ScriptFusion .
 
@@ -40,16 +40,17 @@ class ScriptFusion ():
         Returns:
             None
         """
-        self.extension = ".py"
         self.target_directory = folder_entry.get()
+        self.label = result_label
+        self.extension = extension
         if not self.target_directory:
-            result_label.config(text = "Veuillez inscrire un dossier !")
+            self.label.config(text = "Veuillez inscrire un dossier !")
             return
         if not os.path.exists(self.target_directory):
-            result_label.config(text = "Le chemin spécifié n'existe pas !")
+            self.label.config(text = "Le chemin spécifié n'existe pas !")
             return
         self.start_script_merger()
-        self.get_result(result_label)
+        self.get_result()
 
     def create_output_directory(self):
         """
@@ -135,7 +136,6 @@ class ScriptFusion ():
         """
         if not line.startswith(("import", "from")):
             if path.endswith("__main__.py"):
-                print("oui")
                 self.main_file_content.append(line)
             else:
                 self.script_content.append(line)
@@ -196,15 +196,15 @@ class ScriptFusion ():
         self.process_content()
         self.merge_script_files()
 
-    def get_result(self, result_label: ttk.Label):
+    def get_result(self):
         """
         Update the result label with the execution status.
 
         Args:
-            result_label (ttk.Label): Label widget to display execution results.
+            None
 
         Returns:
             None
         """
-        result_label.config(text = "Script exécuté avec succès !")
+        self.label.config(text = "Script exécuté avec succès !")
         os.system(f'explorer "{os.path.abspath(self.output_directory_path)}"')
