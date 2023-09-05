@@ -45,15 +45,7 @@ class ScriptFusion ():
         self.label = result_label
         self.extension = extension
         if self.check_input():
-            self.output_directory_name = "merged_scripts"
-            self.output_file_name = "merged_scripts.py"
-            self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
-            self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
-            self.files_in_directory = []
-            self.path_files_in_directory = []
-            self.import_statements = []
-            self.main_file_content = []
-            self.script_content = []
+            self.initialize_directories_and_files()
             self.start_script_merger()
             self.get_result()
 
@@ -73,6 +65,17 @@ class ScriptFusion ():
             self.label.config(text = "Le chemin spécifié n'existe pas !")
             return False
         return  True
+    
+    def initialize_directories_and_files(self):
+        self.output_directory_name = "merged_scripts"
+        self.output_file_name = "merged_scripts.py"
+        self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
+        self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
+        self.files_in_directory = []
+        self.path_files_in_directory = []
+        self.import_statements = []
+        self.main_file_content = []
+        self.script_content = []
     
     def add_ligne_gitignore(self):
         gitignore_path = os.path.join(self.root_directory, '.gitignore')        
