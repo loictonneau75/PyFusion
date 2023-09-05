@@ -50,18 +50,17 @@ class ScriptFusion ():
         self.target_directory = self.find_script_directory()
         self.label = result_label
         self.extension = extension
-
         if self.check_input():
             self.files_in_directory = []
             self.path_files_in_directory = []
+            self.initialize_directories_and_files()
 
             self.presentation = []
             self.imports = []
             self.main_file_content = []
             self.other_files_content = []
-
-            self.initialize_directories_and_files()
             self.script_merger()
+            
             self.show_result()
 
     def find_script_directory(self):
@@ -80,7 +79,6 @@ class ScriptFusion ():
         target_base_name = os.path.basename(self.root_directory)
         for root, dirs, _ in os.walk(self.root_directory):
             if target_base_name in dirs:
-                print("ok")
                 return os.path.join(root, target_base_name)
         return self.root_directory
 
@@ -123,7 +121,6 @@ class ScriptFusion ():
         self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
         self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
         
-    
     def add_ligne_gitignore(self):
         """
         Add the output directory name to the `.gitignore` file in the root directory.

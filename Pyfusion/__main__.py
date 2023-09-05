@@ -1,4 +1,3 @@
-
 """
 Script Fusion App
 
@@ -25,7 +24,6 @@ create the output file.
 
 Author: TONNEAU Loïc
 """
-
 from script_fusion.script_fusion_app import ScriptFusionApp
 
 
