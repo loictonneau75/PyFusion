@@ -39,6 +39,7 @@ class ScriptFusionApp(ttk.Window):
 
         self.configure_grid()
         self.create_widgets()
+        self.mainloop()
 
     def configure_grid(self):
         """

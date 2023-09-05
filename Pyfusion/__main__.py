@@ -24,9 +24,66 @@ create the output file.
 
 Author: TONNEAU Loïc
 """
+import ttkbootstrap as ttk
+
+from typing import Union
+
+from utils import is_os_light_mode
 from script_fusion.script_fusion_app import ScriptFusionApp
+from class_separator.class_separator_app import ClassSeparator
+
+class PyFusion(ttk.Window):
+    def __init__(self):
+        """
+        Initialize the PyFusion app.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        theme = "flatly" if is_os_light_mode() else "darkly"
+        super().__init__(themename=theme)
+        self.title("Script Merger")
+        self.resizable(False, False)
+
+        self.create_widgets()
+
+
+    def create_widgets(self):
+        """
+        Create GUI widgets for the application.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.merged_button = ttk.Button(self,text = "ScritpFusion", command = lambda: self.manage_button(ScriptFusionApp))
+        self.separator_button = ttk.Button(self,text = "ClassSeparator", command = lambda: self.manage_button(ClassSeparator))
+        
+        self.place_widgets()
+
+    def manage_button(self, app: Union[ScriptFusionApp, ClassSeparator]):
+        self.destroy()
+        app()
+
+    def place_widgets(self):
+        """
+        Place widgets within the layout grid.
+
+        Args:
+            NoneApp
+
+        Returns:
+            None
+        """
+        self.merged_button.pack(padx=25, pady=(25, 7), fill='both')
+        self.separator_button.pack(padx=25, pady=(7, 25), fill='both')
 
 
 if __name__ == "__main__":
-    app = ScriptFusionApp()
+    app = PyFusion()
     app.mainloop()
