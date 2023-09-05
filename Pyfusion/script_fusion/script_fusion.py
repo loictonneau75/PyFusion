@@ -13,15 +13,15 @@ class ScriptFusion ():
         output_directory_path (str): Path of the output directory.
         output_file_name (str): Name of the output merged file.
         output_file_path (str): Path of the output merged file.
-        file_list (list): List of Python script file names (without extension).
-        path_list (list): List of paths to Python script files.
+        files_in_directory (list): List of Python script file names (without extension).
+        path_files_in_directory (list): List of paths to Python script files.
         import_statements (list): List of import statements.
 
     Methods:
         __init__(folder_entry: ttk.Entry, result_label: ttk.Label): Initialize the ScriptFusion .
         create_output_directory(): Create the output directory if it doesn't exist.
         find_python_files_in_directory(): Find Python script files in the target directory.
-        check_words_in_string(line: str): Check if any word from file_list is present in the line.
+        check_files_in_string(line: str): Check if any file from files_in_directory is present in the line.
         process_import_statement(line: str): Process import statements in the line.
         process_script_content(line, path): Process script content based on the line and path.
         process_content(): Process the content of script files.
@@ -40,12 +40,30 @@ class ScriptFusion ():
         Returns:
             None
         """
-        self.target_directory = folder_entry.get()
+        self.root_directory = folder_entry.get()
+        self.target_directory = self.find_script_directory()
         self.label = result_label
         self.extension = extension
         if self.check_input():
+            self.output_directory_name = "merged_scripts"
+            self.output_file_name = "merged_scripts.py"
+            self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
+            self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
+            self.files_in_directory = []
+            self.path_files_in_directory = []
+            self.import_statements = []
+            self.main_file_content = []
+            self.script_content = []
             self.start_script_merger()
             self.get_result()
+
+    def find_script_directory(self):
+        target_base_name = os.path.basename(self.root_directory)
+        for root, dirs, _ in os.walk(self.root_directory):
+            if target_base_name in dirs:
+                print("ok")
+                return os.path.join(root, target_base_name)
+        return self.root_directory
 
     def check_input(self) -> bool:
         if not self.target_directory:
@@ -55,6 +73,17 @@ class ScriptFusion ():
             self.label.config(text = "Le chemin spécifié n'existe pas !")
             return False
         return  True
+    
+    def add_ligne_gitignore(self):
+        gitignore_path = os.path.join(self.root_directory, '.gitignore')        
+        ignore_line = f'{self.output_directory_name}/'
+        if os.path.exists(gitignore_path):
+            with open(gitignore_path, 'r') as f:
+                lines = f.readlines()
+            if any(ignore_line in line for line in lines):
+                return        
+        with open(gitignore_path, 'a') as f:
+           f.write(f'\n{ignore_line}\n')
 
     def create_output_directory(self):
         """
@@ -68,6 +97,7 @@ class ScriptFusion ():
         """
         if not os.path.exists(self.output_directory_path):
             os.makedirs(self.output_directory_path)
+        self.add_ligne_gitignore()
 
     def find_python_files_in_directory(self):
         """
@@ -79,26 +109,24 @@ class ScriptFusion ():
         Returns:
             None
         """
-        self.file_list = []
-        self.path_list = []
         for root, _, files in os.walk(self.target_directory):
             for file in files:
                 if file.endswith(self.extension):
                     file_name, _ = os.path.splitext(file)
-                    self.file_list.append(file_name)
-                    self.path_list.append(os.path.join(root, file))
+                    self.files_in_directory.append(file_name)
+                    self.path_files_in_directory.append(os.path.join(root, file))
 
-    def check_words_in_string(self, line: str):
+    def check_files_in_string(self, line: str):
         """
-        Check if any word from file_list is present in the line.
+        Check if any file from files_in_directory is present in the line.
 
         Args:
             line (str): Line of text to check.
 
         Returns:
-            bool: True if none of the words in file_list are present, False otherwise.
+            bool: True if none of the files in files_in_directory are present, False otherwise.
         """
-        return all(word not in line for word in self.file_list)
+        return all(file not in line for file in self.files_in_directory)
     
     def process_comment_statement(self):
         """
@@ -124,7 +152,7 @@ class ScriptFusion ():
             None
         """
         if line.startswith(("import","from")):
-            if line not in self.import_statements and self.check_words_in_string(line):
+            if line not in self.import_statements and self.check_files_in_string(line):
                 self.import_statements.append(line)
 
     def process_script_content(self, line, path):
@@ -154,10 +182,8 @@ class ScriptFusion ():
         Returns:
             None
         """
-        self.import_statements = []
-        self.main_file_content = []
-        self.script_content = []
-        for path in self.path_list:
+        
+        for path in self.path_files_in_directory:
             if not path.endswith(self.output_file_name):
                 with open(path, "r") as file:
                     for line in file:
@@ -189,13 +215,8 @@ class ScriptFusion ():
         Returns:
             None
         """
-        self.output_directory_name = "merged_scripts"
-        self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
+        
         self.create_output_directory()
-
-        self.output_file_name = "merged_scripts.py"
-        self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
-
         self.find_python_files_in_directory()
         self.process_content()
         self.merge_script_files()

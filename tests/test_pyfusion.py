@@ -1,6 +1,6 @@
 import unittest
-import pyfusion2
+import PyFusion 
 
 class TartempionTest(unittest.TestCase):
     def test_tartempion_loaded(self):
-        self.assertTrue(pyfusion2)
+        self.assertTrue(PyFusion)
