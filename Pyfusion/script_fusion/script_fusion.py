@@ -224,6 +224,7 @@ class ScriptFusion ():
 
         if path.endswith("__main__.py"):
             for line in file:
+                self.process_import_statement(line)
                 striped_line = line.strip()
 
                 if not docstring_started:
