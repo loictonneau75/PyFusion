@@ -32,9 +32,9 @@ from utils import is_os_light_mode
 from script_fusion.script_fusion_app import ScriptFusionApp
 from class_separator.class_separator_app import ClassSeparatorApp
 
-class PyFusion(ttk.Window):
+class Main(ttk.Window):
     """
-    PyFusion Class for managing a tkinter application window.
+    Main Class for managing a tkinter application window.
     
     This class inherits from ttk.Window and sets up a GUI for merging Python scripts
     or separating Python classes. The user can choose between two functionalities
@@ -45,14 +45,14 @@ class PyFusion(ttk.Window):
         separator_button (ttk.Button): Button for ClassSeparator functionality.
 
     Methods:
-        __init__(): Initialize the PyFusion app with a specific theme.
+        __init__(): Initialize the Main app with a specific theme.
         create_widgets(): Create GUI widgets for the application.
         manage_button(app: Union[ScriptFusionApp, ClassSeparatorApp]): Handle button behavior and switch apps.
         place_widgets(): Position the widgets within the layout pack.
     """
     def __init__(self):
         """
-        Initialize the PyFusion app.
+        Initialize the Main app.
 
         Args:
             None
@@ -112,5 +112,5 @@ class PyFusion(ttk.Window):
 
 
 if __name__ == "__main__":
-    app = PyFusion()
+    app = Main()
     app.mainloop()

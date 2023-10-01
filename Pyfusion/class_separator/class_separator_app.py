@@ -1,4 +1,4 @@
 import ttkbootstrap as ttk
 
-class ClassSeparator(ttk.Window):
+class ClassSeparatorApp(ttk.Window):
     pass

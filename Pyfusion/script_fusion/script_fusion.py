@@ -140,7 +140,7 @@ class ScriptFusion ():
             with open(gitignore_path, 'r') as f:
                 lines = f.readlines()
             if any(ignore_line in line for line in lines):
-                return        
+                return
         with open(gitignore_path, 'a') as f:
            f.write(f'\n{ignore_line}\n')
 
@@ -219,17 +219,27 @@ class ScriptFusion ():
         Returns:
             None
         """
+        docstring_started = False
         inside_docstring = False
+
         if path.endswith("__main__.py"):
             for line in file:
                 striped_line = line.strip()
-                if striped_line == '"""':
-                    inside_docstring = not inside_docstring
-                    self.presentation.append(line)
-                    continue
-                if inside_docstring:
-                    self.presentation.append(line)
-                    continue
+
+                if not docstring_started:
+                    if striped_line == '"""':
+                        inside_docstring = not inside_docstring
+
+                        if not inside_docstring:
+                            docstring_started = True
+
+                        self.presentation.append(line)
+                        continue
+
+                    if inside_docstring:
+                        self.presentation.append(line)
+                        continue
+                    
                 if not line.startswith(("import","from")):
                     self.main_file_content.append(line)
                     continue
