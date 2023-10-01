@@ -1,0 +1,2 @@
+class ClassSeparator():
+    pass

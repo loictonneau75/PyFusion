@@ -4,7 +4,7 @@ from tkinter import filedialog
 
 from script_fusion.script_fusion import ScriptFusion
 
-from utils import is_os_light_mode
+from utils import is_os_light_mode, from_class_name_to_str
 
 
 class ScriptFusionApp(ttk.Window):
@@ -33,10 +33,7 @@ class ScriptFusionApp(ttk.Window):
             None
         """
         theme = "flatly" if is_os_light_mode() else "darkly"
-        super().__init__(themename=theme)
-        self.title("Script Merger")
-        self.resizable(False, False)
-
+        super().__init__(themename = theme, title = from_class_name_to_str(self.__class__.__name__), resizable = (False, False))
         self.configure_grid()
         self.create_widgets()
         self.mainloop()
@@ -51,12 +48,12 @@ class ScriptFusionApp(ttk.Window):
         Returns:
             None
         """
-        self.columnconfigure(0, pad=10)
-        self.columnconfigure(1, pad=10)
+        self.columnconfigure(0, pad = 10)
+        self.columnconfigure(1, pad = 10)
 
-        self.rowconfigure(0, pad=10)
-        self.rowconfigure(1, pad=10)
-        self.rowconfigure(2, pad=10)
+        self.rowconfigure(0, pad = 10)
+        self.rowconfigure(1, pad = 10)
+        self.rowconfigure(2, pad = 10)
 
     def create_widgets(self):
         """
@@ -68,15 +65,15 @@ class ScriptFusionApp(ttk.Window):
         Returns:
             None
         """
-        self.folder_label = ttk.Label(self, text="Choisissez le dossier cible :")
+        self.folder_label = ttk.Label(self, text = "Choisissez le dossier cible :")
         self.folder_entry = ttk.Entry(self)
 
-        self.folder_button = ttk.Button(self, text="Parcourir", bootstyle="secondary",
-                                        command=lambda: self.folder_entry.insert(tk.END, filedialog.askdirectory()))
-        self.execute_button = ttk.Button(self, text="Éxécuter", bootstyle="success",
-                                         command=lambda: ScriptFusion (self.folder_entry, self.result_label))
+        self.folder_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary",
+                                        command = lambda: self.folder_entry.insert(tk.END, filedialog.askdirectory()))
+        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success",
+                                         command = lambda: ScriptFusion (self.folder_entry, self.result_label))
         
-        self.result_label = ttk.Label(self, text="")
+        self.result_label = ttk.Label(self, text = "")
 
         self.place_widgets()
 
@@ -90,10 +87,9 @@ class ScriptFusionApp(ttk.Window):
         Returns:
             None
         """
-        self.folder_label.grid(columnspan=2, row=0)
-        self.folder_entry.grid(column=0, row=1)
+        self.folder_label.grid(columnspan = 2, row = 0)
+        self.folder_entry.grid(column = 0, row = 1)
+        self.folder_button.grid(column = 1, row = 1)
 
-        self.folder_button.grid(column=1, row=1)
-        self.execute_button.grid(columnspan=2, row=2)
-        
-        self.result_label.grid(columnspan=2, row=3)
+        self.execute_button.grid(columnspan = 2, row = 2)
+        self.result_label.grid(columnspan = 2, row = 3)
