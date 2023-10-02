@@ -16,6 +16,7 @@ class ClassSeparator():
         self.classes ={}
         self.utils = {}
         self.file_separator()
+        self.create_tree_structure()
         """ if self.check_input():
             self.dockstring = []
             self.imports = []
@@ -152,3 +153,6 @@ class ClassSeparator():
 
         if current_function_content:
             self.utils[function_name] = current_function_content
+
+    def create_tree_structure():
+        pass

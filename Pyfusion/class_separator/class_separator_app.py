@@ -4,15 +4,15 @@ from tkinter import filedialog
 
 from class_separator.class_separator import ClassSeparator
 
-from utils import is_os_light_mode, from_class_name_to_str
+from utils import from_class_name_to_str
 
-class ClassSeparatorApp(ttk.Window):
-    def __init__(self) -> None:
-        theme = "flatly" if is_os_light_mode() else "darkly"
-        super().__init__(themename = theme, title = from_class_name_to_str(self.__class__.__name__), resizable = (False, False))
+class ClassSeparatorApp(ttk.Labelframe):
+    def __init__(self, master: ttk.Window) -> None:
+        self.master = master
+        super().__init__(self.master, text = from_class_name_to_str(self.__class__.__name__))
         self.configure_grid()
         self.create_widgets()
-        self.mainloop()
+        self.pack()
 
     def configure_grid(self) -> None:
         """

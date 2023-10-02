@@ -4,10 +4,10 @@ from tkinter import filedialog
 
 from script_fusion.script_fusion import ScriptFusion
 
-from utils import is_os_light_mode, from_class_name_to_str
+from utils import from_class_name_to_str
 
 
-class ScriptFusionApp(ttk.Window):
+class ScriptFusionApp(ttk.Labelframe):
     """
     Main application class for the Script Fusion App.
     Contain the UI script.
@@ -22,7 +22,7 @@ class ScriptFusionApp(ttk.Window):
         create_widgets(): Creates and places GUI widgets.
         place_widgets(): Places widgets within the grid.
     """
-    def __init__(self) -> None:
+    def __init__(self, master: ttk.Window) -> None:
         """
         Initialize the ScriptFusionApp.
 
@@ -32,11 +32,11 @@ class ScriptFusionApp(ttk.Window):
         Returns:
             None
         """
-        theme = "flatly" if is_os_light_mode() else "darkly"
-        super().__init__(themename = theme, title = from_class_name_to_str(self.__class__.__name__), resizable = (False, False))
+        self.master = master
+        super().__init__(self.master, text = from_class_name_to_str(self.__class__.__name__))
         self.configure_grid()
         self.create_widgets()
-        self.mainloop()
+        self.pack()
 
     def configure_grid(self) -> None:
         """

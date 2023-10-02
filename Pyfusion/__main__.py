@@ -24,6 +24,7 @@ create the output file.
 
 Author: TONNEAU Loïc
 """
+import tkinter as tk
 import ttkbootstrap as ttk
 
 from utils import is_os_light_mode
@@ -62,9 +63,24 @@ class Main(ttk.Window):
         super().__init__(themename=theme)
         self.title("Script Merger")
         self.resizable(False, False)
+        self.create_interface()
 
+    def create_interface(self):
+        self.app_frame = ttk.Frame(self, name = "app_frame")
+        self.app_frame.grid(row = 0, column = 0)
+        self.frame = AppChoiceApp(self.app_frame)
+
+        self.button_frame = ttk.Frame(self, name = "button_frame")
+        self.button_frame.grid(row = 1, column = 0)
+        self.back_button = ttk.Button(self.button_frame, text = "Quit", command = self.destroy)
+        self.back_button.pack()
+
+class AppChoiceApp(ttk.Frame):
+    def __init__(self, master: ttk.Window):
+        self.master = master
+        super().__init__(self.master)
         self.create_widgets()
-
+        self.pack()
 
     def create_widgets(self):
         """
@@ -92,8 +108,25 @@ class Main(ttk.Window):
         Returns:
             None
         """
-        self.destroy()
-        app()
+        master = self.master.master
+        master.frame.destroy()
+        master.frame = app(master.app_frame)
+        master.back_button.config(text = "Return", command = self.return_to_app_choice)
+
+    def return_to_app_choice(self):
+        """
+        Returns to the AppChoiceApp frame from any other frame.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        master = self.master.master
+        master.frame.destroy()
+        master.frame = AppChoiceApp(master.app_frame)
+        master.back_button.config(text = "Quit", command = master.destroy)
 
     def place_widgets(self):
         """
