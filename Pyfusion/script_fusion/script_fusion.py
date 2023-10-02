@@ -34,7 +34,7 @@ class ScriptFusion ():
         script_merger(): Initiates the script merging process.
         show_result(): Updates the result label with the execution status.
     """
-    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label, extension = ".py"):
+    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label, extension = ".py") -> None:
         """
         Initialize the ScriptFusion object.
 
@@ -63,7 +63,7 @@ class ScriptFusion ():
             
             self.show_result()
 
-    def find_script_directory(self):
+    def find_script_directory(self) -> str:
         """
         Find the script directory based on the basename of the root directory.
 
@@ -103,7 +103,7 @@ class ScriptFusion ():
             return False
         return  True
     
-    def initialize_directories_and_files(self):
+    def initialize_directories_and_files(self) -> None:
         """
         Initialize names and paths for the output directory and file.
 
@@ -121,7 +121,7 @@ class ScriptFusion ():
         self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
         self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
         
-    def add_ligne_gitignore(self):
+    def add_ligne_gitignore(self) -> None:
         """
         Add the output directory name to the `.gitignore` file in the root directory.
 
@@ -144,7 +144,7 @@ class ScriptFusion ():
         with open(gitignore_path, 'a') as f:
            f.write(f'\n{ignore_line}\n')
 
-    def create_output_directory(self):
+    def create_output_directory(self) -> None:
         """
         Create the output directory if it doesn't exist.
 
@@ -158,7 +158,7 @@ class ScriptFusion ():
             os.makedirs(self.output_directory_path)
         self.add_ligne_gitignore()
 
-    def find_python_files_in_directory(self):
+    def find_python_files_in_directory(self) -> None:
         """
         Find Python script files in the target directory.
 

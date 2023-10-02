@@ -26,8 +26,6 @@ Author: TONNEAU Loïc
 """
 import ttkbootstrap as ttk
 
-from typing import Union
-
 from utils import is_os_light_mode
 from script_fusion.script_fusion_app import ScriptFusionApp
 from class_separator.class_separator_app import ClassSeparatorApp
@@ -47,7 +45,7 @@ class Main(ttk.Window):
     Methods:
         __init__(): Initialize the Main app with a specific theme.
         create_widgets(): Create GUI widgets for the application.
-        manage_button(app: Union[ScriptFusionApp, ClassSeparatorApp]): Handle button behavior and switch apps.
+        manage_button(app: ScriptFusionApp | ClassSeparatorApp): Handle button behavior and switch apps.
         place_widgets(): Position the widgets within the layout pack.
     """
     def __init__(self):
@@ -83,7 +81,7 @@ class Main(ttk.Window):
         
         self.place_widgets()
 
-    def manage_button(self, app: Union[ScriptFusionApp, ClassSeparatorApp]):
+    def manage_button(self, app: ScriptFusionApp | ClassSeparatorApp):
         """
         Manages the behavior of a button in the application. Destroys the current
         instance of the class and initializes a new instance of the specified application.

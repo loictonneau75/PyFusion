@@ -22,7 +22,7 @@ class ScriptFusionApp(ttk.Window):
         create_widgets(): Creates and places GUI widgets.
         place_widgets(): Places widgets within the grid.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize the ScriptFusionApp.
 
@@ -38,7 +38,7 @@ class ScriptFusionApp(ttk.Window):
         self.create_widgets()
         self.mainloop()
 
-    def configure_grid(self):
+    def configure_grid(self) -> None:
         """
         Configure the layout grid for the application.
 
@@ -55,7 +55,7 @@ class ScriptFusionApp(ttk.Window):
         self.rowconfigure(1, pad = 10)
         self.rowconfigure(2, pad = 10)
 
-    def create_widgets(self):
+    def create_widgets(self) -> None:
         """
         Create GUI widgets for the application.
 
@@ -77,7 +77,7 @@ class ScriptFusionApp(ttk.Window):
 
         self.place_widgets()
 
-    def place_widgets(self):
+    def place_widgets(self) -> None:
         """
         Place widgets within the layout grid.
 
