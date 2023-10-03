@@ -6,6 +6,7 @@ from class_separator.TreeStructureApp import TreeStructureApp
 
 class ClassSeparator():
     def __init__(self, master, file_entry: ttk.Entry, folder_entry: ttk.Entry, result_label: ttk.Label, extension = ".py") -> None:
+        self.master = master
         self.file = file_entry.get()
         self.folder = folder_entry.get()
         self.label = result_label
@@ -16,8 +17,8 @@ class ClassSeparator():
             self.starting_snippet = []
             self.classes ={}
             self.utils = {}
+            self.tree_structure = None
             self.file_separator()
-            master.master.go_to_new_app(TreeStructureApp)
 
     def check_input(self) -> bool:
         if not self.file:
@@ -45,6 +46,7 @@ class ClassSeparator():
             self.process_starting_snippet_statement(text)
             self.process_class_statement(text)
             self.process_functions_statement(text)
+        self.tree_structure = self.master.master.go_to_new_app(TreeStructureApp, dict = {"classes" : self.classes, "utils" :self.utils})
             #print(f"docstring\n{self.dockstring}\nimport\n{list(self.imports.keys())}\nstart snippet\n{self.starting_snippet}\nutils\n{list(self.utils.keys())}\nclass\n{list(self.classes.keys())}")
 
     def process_dockstring_statement(self, text: list, is_started: bool, is_inside: bool) -> None:

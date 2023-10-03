@@ -76,7 +76,7 @@ class Main(ttk.Window):
         self.back_button = ttk.Button(self.button_frame, text = "Quit", command = self.destroy)
         self.back_button.pack()
 
-    def go_to_new_app(self, app: ScriptFusionApp | ClassSeparatorApp | TreeStructureApp):
+    def go_to_new_app(self, app: ScriptFusionApp | ClassSeparatorApp | TreeStructureApp, dict: dict = None):
         """
         Manages the behavior of a button in the application. Destroys the current
         instance of the class and initializes a new instance of the specified application.
@@ -88,10 +88,11 @@ class Main(ttk.Window):
             None
         """
         self.frame.destroy()
-        self.frame = app(self.app_frame)
-        if app.__name__ in ("ScriptFusionApp","ClassSeparatorApp"):
+        if app in (ScriptFusionApp,ClassSeparatorApp):
+            self.frame = app(self.app_frame)
             self.back_button.config(text = "Return", command = self.return_to_app_choice)
-        elif app.__name__ == "TreeStructureApp":
+        elif app == TreeStructureApp:
+            self.frame = app(self.app_frame, dict)
             self.back_button.config(text = "Return", command = lambda: self.go_to_new_app(ClassSeparatorApp))
 
     def return_to_app_choice(self):
