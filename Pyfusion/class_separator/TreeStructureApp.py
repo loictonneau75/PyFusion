@@ -1,4 +1,6 @@
 import ttkbootstrap as ttk
+import tkinter as tk
+from tkinter import simpledialog, messagebox
 from utils import from_class_name_to_str
 
 class TreeStructureApp(ttk.Labelframe):
@@ -20,33 +22,34 @@ class TreeStructureApp(ttk.Labelframe):
         
         # Initialisation du Treeview
         self.tree_view_repositery = ttk.Treeview(self, columns=("name", "origin"))
-
-        self.tree_view_repositery.heading(0, text="Nom du Dossier")
-        self.tree_view_repositery.heading(1, text="Origine")
+        self.tree_view_repositery.heading("#0", text="Structure")
+        self.tree_view_repositery.heading("#1", text="Nom du Dossier")
+        self.tree_view_repositery.heading("#2", text="Origine")
         
         # Ajout du dossier originel
-        self.root_folder = self.tree_view_repositery.insert("", "end", text=".", values=("Dossier Originel", "."))
-        
+        self.root_folder = self.add_folder(".","")
+
+        self.button_fram = ttk.Frame(self)
+        self.add_folder_button = ttk.Button(self.button_fram, text="Ajouter")
+        self.delete_folder_button = ttk.Button(self.button_fram, text="Supprimer", command=self.delete_selected_folder, state=tk.DISABLED)  # initialement désactivé
+        self.modify_folder_button = ttk.Button(self.button_fram,text = "Modifier", state = tk.DISABLED)
+
         self.place_widgets()
 
-        # Exemple d'ajout de dossiers
-        self.add_folder("Sous-Dossier1")
-        # Pour ajouter d'autres dossiers, suivez le modèle ci-dessus.
-    
     def place_widgets(self) -> None:
         self.file_labelframe.grid(row=0, column=0)
         self.tree_view_repositery.grid(row=0, column=1)
+        self.button_fram.grid(row = 0, rowspan = 2, column =3)
+        self.add_folder_button.pack()
+        self.delete_folder_button.pack()
+        self.modify_folder_button.pack()
         self.class_name.pack()
 
-    def add_folder(self, name, origin=None):
-        """
-        Ajoute un nouveau dossier à la Treeview
-        :param name: Nom du nouveau dossier
-        :param origin: ID du dossier parent (default est le dossier originel)
-        """
-        if origin is None:
-            origin = self.root_folder
+    def add_folder(self, name, origin):
         self.tree_view_repositery.insert(origin, "end", text=name, values=(name, origin))
 
-# À ce stade, vous pouvez continuer avec le reste de votre application, 
-# comme la liaison d'événements, la gestion d'autres boutons ou widgets, etc.
+    def delete_selected_folder(self):
+        selected_item = self.tree_view_repositery.selection()[0]  # obtient l'ID de l'élément sélectionné
+        if selected_item and selected_item != self.root_folder:  # vérifie si un élément est sélectionné et qu'il ne s'agit pas du dossier racine
+            self.tree_view_repositery.delete(selected_item)
+   
