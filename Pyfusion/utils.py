@@ -4,7 +4,7 @@ import re
 
 def from_class_name_to_str(nom):
     # Enlever "App" à la fin
-    nom = nom.replace("App", "")
+    #nom = nom.replace("App", "")
     
     # Insérer un espace avant chaque majuscule, sauf s'il s'agit du premier caractère
     nom = re.sub(r'(?<=[a-z])([A-Z])', r' \1', nom).lower()

@@ -30,6 +30,7 @@ import ttkbootstrap as ttk
 from utils import is_os_light_mode
 from script_fusion.script_fusion_app import ScriptFusionApp
 from class_separator.class_separator_app import ClassSeparatorApp
+from class_separator.TreeStructureApp import TreeStructureApp
 
 class Main(ttk.Window):
     """
@@ -66,14 +67,46 @@ class Main(ttk.Window):
         self.create_interface()
 
     def create_interface(self):
-        self.app_frame = ttk.Frame(self, name = "app_frame")
+        self.app_frame = ttk.Frame(self)
         self.app_frame.grid(row = 0, column = 0)
         self.frame = AppChoiceApp(self.app_frame)
 
-        self.button_frame = ttk.Frame(self, name = "button_frame")
+        self.button_frame = ttk.Frame(self)
         self.button_frame.grid(row = 1, column = 0)
         self.back_button = ttk.Button(self.button_frame, text = "Quit", command = self.destroy)
         self.back_button.pack()
+
+    def go_to_new_app(self, app: ScriptFusionApp | ClassSeparatorApp | TreeStructureApp):
+        """
+        Manages the behavior of a button in the application. Destroys the current
+        instance of the class and initializes a new instance of the specified application.
+
+        Args:
+            app (Union[ScriptFusionApp, ClassSeparatorApp]): The application class to initialize.
+
+        Returns:
+            None
+        """
+        self.frame.destroy()
+        self.frame = app(self.app_frame)
+        if app.__name__ in ("ScriptFusionApp","ClassSeparatorApp"):
+            self.back_button.config(text = "Return", command = self.return_to_app_choice)
+        elif app.__name__ == "TreeStructureApp":
+            self.back_button.config(text = "Return", command = lambda: self.go_to_new_app(ClassSeparatorApp))
+
+    def return_to_app_choice(self):
+        """
+        Returns to the AppChoiceApp frame from any other frame.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.frame.destroy()
+        self.frame = AppChoiceApp(self.app_frame)
+        self.back_button.config(text = "Quit", command = self.destroy)
 
 class AppChoiceApp(ttk.Frame):
     def __init__(self, master: ttk.Window):
@@ -92,41 +125,13 @@ class AppChoiceApp(ttk.Frame):
         Returns:
             None
         """
-        self.merged_button = ttk.Button(self,text = "ScritpFusion", command = lambda: self.manage_button(ScriptFusionApp))
-        self.separator_button = ttk.Button(self,text = "ClassSeparator", command = lambda: self.manage_button(ClassSeparatorApp))
+        master = self.master.master
+        self.merged_button = ttk.Button(self,text = "ScritpFusion", command = lambda: master.go_to_new_app(ScriptFusionApp))
+        self.separator_button = ttk.Button(self,text = "ClassSeparator", command = lambda: master.go_to_new_app(ClassSeparatorApp))
         
         self.place_widgets()
 
-    def manage_button(self, app: ScriptFusionApp | ClassSeparatorApp):
-        """
-        Manages the behavior of a button in the application. Destroys the current
-        instance of the class and initializes a new instance of the specified application.
-
-        Args:
-            app (Union[ScriptFusionApp, ClassSeparatorApp]): The application class to initialize.
-
-        Returns:
-            None
-        """
-        master = self.master.master
-        master.frame.destroy()
-        master.frame = app(master.app_frame)
-        master.back_button.config(text = "Return", command = self.return_to_app_choice)
-
-    def return_to_app_choice(self):
-        """
-        Returns to the AppChoiceApp frame from any other frame.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        master = self.master.master
-        master.frame.destroy()
-        master.frame = AppChoiceApp(master.app_frame)
-        master.back_button.config(text = "Quit", command = master.destroy)
+    
 
     def place_widgets(self):
         """

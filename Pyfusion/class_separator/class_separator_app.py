@@ -37,14 +37,15 @@ class ClassSeparatorApp(ttk.Labelframe):
     def create_widgets(self) -> None:
         self.file_label = ttk.Label(self, text = "Choisissez le fichier cible :")
         self.file_entry = ttk.Entry(self)
-        self.file_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary",
-                                      command = lambda : self.file_entry.insert(tk.END, filedialog.askopenfilename()))
+        self.file_entry.insert(0, "C:/Users/admin/Desktop/PyFusion/Pyfusion/merged_scripts/merged_scripts.py")
+        self.file_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.search_file)
+
         self.folder_label = ttk.Label(self, text = "Choisissez le dossier cible :")
         self.folder_entry = ttk.Entry(self)
-        self.folder_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary",
-                                      command = lambda : self.folder_entry.insert(tk.END, filedialog.askdirectory()))
-        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success",
-                                         command = lambda: ClassSeparator(self.file_entry, self.folder_entry, self.result_label))
+        self.folder_entry.insert(0, "C:/Users/admin/Desktop/Nouveau dossier")
+        self.folder_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.search_directory )
+
+        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = self.managed_execute_button)
         self.result_label = ttk.Label(self, text = "")
         self.place_widgets()
     
@@ -59,3 +60,12 @@ class ClassSeparatorApp(ttk.Labelframe):
 
         self.execute_button.grid(columnspan = 2, row = 4)
         self.result_label.grid(columnspan = 2, row = 5)
+
+    def managed_execute_button(self):
+        ClassSeparator(self.master, self.file_entry, self.folder_entry, self.result_label)
+
+    def search_directory(self):
+        self.folder_entry.insert(tk.END, filedialog.askdirectory())
+
+    def search_file(self):
+        self.file_entry.insert(tk.END, filedialog.askopenfilename())

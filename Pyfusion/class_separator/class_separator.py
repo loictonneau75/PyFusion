@@ -2,27 +2,22 @@ import ttkbootstrap as ttk
 import os
 import re
 
+from class_separator.TreeStructureApp import TreeStructureApp
 
 class ClassSeparator():
-    def __init__(self, file_entry: ttk.Entry, folder_entry: ttk.Entry, result_label: ttk.Label, extension = ".py") -> None:
+    def __init__(self, master, file_entry: ttk.Entry, folder_entry: ttk.Entry, result_label: ttk.Label, extension = ".py") -> None:
         self.file = file_entry.get()
         self.folder = folder_entry.get()
         self.label = result_label
         self.extension = extension
-
-        self.dockstring = []
-        self.imports = {}
-        self.starting_snippet = []
-        self.classes ={}
-        self.utils = {}
-        self.file_separator()
-        self.create_tree_structure()
-        """ if self.check_input():
+        if self.check_input():
             self.dockstring = []
-            self.imports = []
+            self.imports = {}
             self.starting_snippet = []
-            self.classes = {}
-            self.file_separator() """
+            self.classes ={}
+            self.utils = {}
+            self.file_separator()
+            master.master.go_to_new_app(TreeStructureApp)
 
     def check_input(self) -> bool:
         if not self.file:
@@ -38,6 +33,7 @@ class ClassSeparator():
         if not os.path.exists(self.folder):
             self.label.config(text = "Le chemin du dossier spécifié n'existe pas !")
             return False
+        return True
 
     def file_separator(self):
         docstring_started = False
@@ -49,7 +45,7 @@ class ClassSeparator():
             self.process_starting_snippet_statement(text)
             self.process_class_statement(text)
             self.process_functions_statement(text)
-            print(f"docstring\n{self.dockstring}\nimport\n{list(self.imports.keys())}\nstart snippet\n{self.starting_snippet}\nutils\n{list(self.utils.keys())}\nclass\n{list(self.classes.keys())}")
+            #print(f"docstring\n{self.dockstring}\nimport\n{list(self.imports.keys())}\nstart snippet\n{self.starting_snippet}\nutils\n{list(self.utils.keys())}\nclass\n{list(self.classes.keys())}")
 
     def process_dockstring_statement(self, text: list, is_started: bool, is_inside: bool) -> None:
         for line in text:
@@ -153,6 +149,3 @@ class ClassSeparator():
 
         if current_function_content:
             self.utils[function_name] = current_function_content
-
-    def create_tree_structure():
-        pass

@@ -67,12 +67,9 @@ class ScriptFusionApp(ttk.Labelframe):
         """
         self.folder_label = ttk.Label(self, text = "Choisissez le dossier cible :")
         self.folder_entry = ttk.Entry(self)
+        self.folder_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.open_directory )
 
-        self.folder_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary",
-                                        command = lambda: self.folder_entry.insert(tk.END, filedialog.askdirectory()))
-        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success",
-                                         command = lambda: ScriptFusion (self.folder_entry, self.result_label))
-        
+        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = self.manage_execute )
         self.result_label = ttk.Label(self, text = "")
 
         self.place_widgets()
@@ -93,3 +90,9 @@ class ScriptFusionApp(ttk.Labelframe):
 
         self.execute_button.grid(columnspan = 2, row = 2)
         self.result_label.grid(columnspan = 2, row = 3)
+
+    def manage_execute(self):
+        ScriptFusion (self.folder_entry, self.result_label)
+
+    def open_directory(self):
+        self.folder_entry.insert(tk.END, filedialog.askdirectory())
