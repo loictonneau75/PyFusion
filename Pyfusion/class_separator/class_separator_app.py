@@ -15,15 +15,6 @@ class ClassSeparatorApp(ttk.Labelframe):
         self.pack()
 
     def configure_grid(self) -> None:
-        """
-        Configure the layout grid for the application.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
         self.columnconfigure(0, pad = 10)
         self.columnconfigure(1, pad = 10)
 
@@ -37,12 +28,14 @@ class ClassSeparatorApp(ttk.Labelframe):
     def create_widgets(self) -> None:
         self.file_label = ttk.Label(self, text = "Choisissez le fichier cible :")
         self.file_entry = ttk.Entry(self)
-        self.file_entry.insert(0, "C:/Users/admin/Desktop/PyFusion/Pyfusion/merged_scripts/merged_scripts.py")
+        #TODO: remove
+        self.file_entry.insert(0, "C:/Users/loict/Desktop/PyFusion/PyFusion/__main__.py")
         self.file_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.search_file)
 
         self.folder_label = ttk.Label(self, text = "Choisissez le dossier cible :")
         self.folder_entry = ttk.Entry(self)
-        self.folder_entry.insert(0, "C:/Users/admin/Desktop/Nouveau dossier")
+        #TODO: remove
+        self.folder_entry.insert(0, "C:/Users/loict/Desktop/Nouveau dossier")
         self.folder_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.search_directory )
 
         self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = self.managed_execute_button)
