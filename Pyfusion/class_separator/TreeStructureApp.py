@@ -11,7 +11,6 @@ class TreeStructureApp(ttk.Labelframe):
         self.utils = data.get("utils", None)
         self.configure_grid()
         self.create_widgets()
-        
         self.pack()
 
     def configure_grid(self) -> None:
@@ -22,14 +21,14 @@ class TreeStructureApp(ttk.Labelframe):
         self.class_name = ttk.Label(self.file_labelframe, text="\n".join(key for key in self.classes.keys()))
         
         # Initialisation du Treeview
-        self.tree_view_repositery = ttk.Treeview(self, columns=("name", "origin"))
+        self.tree_view_repositery = ttk.Treeview(self, columns=("name", "path"))
         self.tree_view_repositery.heading("#0", text="Structure")
         self.tree_view_repositery.heading("#1", text="Nom du Dossier")
-        self.tree_view_repositery.heading("#2", text="Origine")
+        self.tree_view_repositery.heading("#2", text="chemin")
         self.tree_view_repositery.bind("<<TreeviewSelect>>", self.on_folder_select)
 
         # Ajout du dossier originel
-        self.root_folder = self.add_folder(".","")
+        self.root_folder = self.tree_view_repositery.insert("", "end", text=".", values=(".", "./"))
         self.essaie = self.add_folder("essaie",self.root_folder)
 
         self.button_fram = ttk.Frame(self)
@@ -49,24 +48,32 @@ class TreeStructureApp(ttk.Labelframe):
         self.class_name.pack()
 
     def add_folder(self, name, origin):
-        return self.tree_view_repositery.insert(origin, "end", text=name, values=(name, origin))
+        if origin == self.root_folder:
+            path = "./" + name
+        else:
+            parent_path = self.tree_view_repositery.item(origin)["values"][1]
+            path = parent_path + "/" + name
+        self.tree_view_repositery.insert(origin, "end", text=name, values=(name, path))
 
     def button_pressed_delete_selected_folder(self):
-        selected_item = self.tree_view_repositery.selection()[0]  # obtient l'ID de l'élément sélectionné
+        selected_item = self.tree_view_repositery.selection()[0]
         if selected_item and selected_item != self.root_folder:  # vérifie si un élément est sélectionné et qu'il ne s'agit pas du dossier racine
             self.tree_view_repositery.delete(selected_item)
 
     def button_pressed_add_new_folder(self):
         dialog = AddFolderDialog(self)
-        if dialog.result :
-            new_folder_name, parent_folder_name = dialog.result
-            parent_id = self.find_parent_id(parent_folder_name)
-
-            if not parent_id and parent_folder_name:
+        if dialog.result:  
+            new_folder_name, parent_folder_path = dialog.result
+            print (f"parent folder path dans button pressed add new folder : {parent_folder_path}")
+            if parent_folder_path == ".":
+                parent_id = self.root_folder
+            else:
+                parent_id = self.find_parent_id(parent_folder_path)
+            if not parent_id:  
                 messagebox.showerror("Erreur", "Dossier parent non trouvé!")
                 return
-            
-            self.add_folder(new_folder_name, parent_id)
+            self.add_folder(new_folder_name, origin=parent_id)
+
    
     def button_pressed_modify_selected_folder(self):
         pass 
@@ -84,13 +91,16 @@ class TreeStructureApp(ttk.Labelframe):
     def get_all_folders(self, node=''):
         folders = []
         for child in self.tree_view_repositery.get_children(node):
-            folders.append(self.tree_view_repositery.item(child)["text"])
+            item_values = self.tree_view_repositery.item(child)["values"]
+            folder_path = item_values[1] if item_values else ""  # Get the folder path
+            folders.append(folder_path)
             folders.extend(self.get_all_folders(child))
         return folders
     
     def find_parent_id(self, parent_name, node=''):
         for child_id in self.tree_view_repositery.get_children(node):
-            if self.tree_view_repositery.item(child_id)["text"] == parent_name:
+            print(self.tree_view_repositery.item(child_id)["values"])
+            if self.tree_view_repositery.item(child_id)["values"][1] == parent_name:
                 return child_id
             result = self.find_parent_id(parent_name, child_id)  # recherche récursive dans les sous-dossiers
             if result:
@@ -115,6 +125,16 @@ class AddFolderDialog(simpledialog.Dialog):
         self.folder_name_entry.grid(row=0, column=1, padx=5, pady=5)
         self.parent_folder_choice_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
         self.parent_folder_choice.grid(row=1, column=1, padx=5, pady=5)
+
+    def buttonbox(self) -> None:
+        box = Frame(self)
+        ok_button = ttk.Button(box, text="OK", width=10, command=self.ok)
+        ok_button.pack(side="left", padx=5, pady=5)
+        cancel_button = ttk.Button(box, text="Cancel", width=10, command=self.cancel,)
+        cancel_button.pack(side="left", padx=5, pady=5)
+        self.bind("<Return>", self.ok)
+        self.bind("<Escape>", self.cancel)
+        box.pack()
 
     def apply(self) -> None:
         self.result = (self.folder_name_entry.get(), self.parent_folder_choice.get())
