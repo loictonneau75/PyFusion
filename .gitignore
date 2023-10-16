@@ -189,4 +189,7 @@ pyrightconfig.json
 .history
 .ionide
 
+### MacOs ###
+**/.DS_Store
+
 merged_scripts/

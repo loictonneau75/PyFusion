@@ -26,6 +26,7 @@ Author: TONNEAU Loïc
 """
 import tkinter as tk
 import ttkbootstrap as ttk
+import platform
 
 from utils import is_os_light_mode
 from script_fusion.script_fusion_app import ScriptFusionApp
@@ -50,7 +51,7 @@ class Main(ttk.Window):
         manage_button(app: ScriptFusionApp | ClassSeparatorApp): Handle button behavior and switch apps.
         place_widgets(): Position the widgets within the layout pack.
     """
-    def __init__(self):
+    def __init__(self, os):
         """
         Initialize the Main app.
 
@@ -60,7 +61,8 @@ class Main(ttk.Window):
         Returns:
             None
         """
-        theme = "flatly" if is_os_light_mode() else "darkly"
+        self.os = os
+        theme = "flatly" if is_os_light_mode(self.os) else "darkly"
         super().__init__(themename=theme)
         self.title("Script Merger")
         self.resizable(False, False)
@@ -147,7 +149,10 @@ class AppChoiceApp(ttk.Frame):
         self.merged_button.pack(padx=25, pady=(25, 7), fill='both')
         self.separator_button.pack(padx=25, pady=(7, 25), fill='both')
 
+def main():
+    os = platform.system()
+    app = Main(os)
+    app.mainloop()
 
 if __name__ == "__main__":
-    app = Main()
-    app.mainloop()
+    main()
