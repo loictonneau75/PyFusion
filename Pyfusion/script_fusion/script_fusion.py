@@ -34,7 +34,7 @@ class ScriptFusion ():
         script_merger(): Initiates the script merging process.
         show_result(): Updates the result label with the execution status.
     """
-    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label, extension = ".py") -> None:
+    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label, os , extension = ".py") -> None:
         """
         Initialize the ScriptFusion object.
 
@@ -49,6 +49,7 @@ class ScriptFusion ():
         self.root_directory = folder_entry.get()
         self.target_directory = self.find_script_directory()
         self.label = result_label
+        self.os = os
         self.extension = extension
         if self.check_input():
             self.files_in_directory = []
@@ -332,4 +333,8 @@ class ScriptFusion ():
             None
         """
         self.label.config(text = "Script exécuté avec succès !")
-        os.system(f'explorer "{os.path.abspath(self.output_directory_path)}"')
+        match self.os:
+            case "Windows":
+                os.system(f'explorer "{os.path.abspath(self.output_directory_path)}"')
+            case "Darwin":
+                os.system(f'open "{os.path.abspath(self.output_directory_path)}"')

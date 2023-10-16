@@ -90,12 +90,14 @@ class Main(ttk.Window):
             None
         """
         self.frame.destroy()
-        if app in (ScriptFusionApp,ClassSeparatorApp):
-            self.frame = app(self.app_frame)
-            self.back_button.config(text = "Return", command = self.return_to_app_choice)
-        elif app == TreeStructureApp:
-            self.frame = app(self.app_frame, dict)
-            self.back_button.config(text = "Return", command = lambda: self.go_to_new_app(ClassSeparatorApp))
+        match app.__name__ :
+            case "ScriptFusionApp" | "ClassSeparatorApp":
+                self.frame = app(self.app_frame, self.os)
+                self.back_button.config(command = self.return_to_app_choice)
+            case "TreeStructureApp":
+                self.frame = app(self.app_frame, dict)
+                self.back_button.config(command = lambda: self.go_to_new_app(ClassSeparatorApp))
+        self.back_button.config(text = "retour")
 
     def return_to_app_choice(self):
         """

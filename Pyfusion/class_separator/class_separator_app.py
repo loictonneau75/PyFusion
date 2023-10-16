@@ -7,11 +7,11 @@ from class_separator.class_separator import ClassSeparator
 from utils import from_class_name_to_str
 
 class ClassSeparatorApp(ttk.Labelframe):
-    def __init__(self, master: ttk.Window) -> None:
+    def __init__(self, master: ttk.Window, os) -> None: #TODO : retirer os
         self.master = master
         super().__init__(self.master, text = from_class_name_to_str(self.__class__.__name__))
         self.configure_grid()
-        self.create_widgets()
+        self.create_widgets(os)
         self.pack()
 
     def configure_grid(self) -> None:
@@ -25,22 +25,26 @@ class ClassSeparatorApp(ttk.Labelframe):
         self.rowconfigure(4, pad = 10)
         self.rowconfigure(5, pad = 10)
 
-    def create_widgets(self) -> None:
+    def create_widgets(self, os) -> None: #TODO : retirer os
         self.file_label = ttk.Label(self, text = "Choisissez le fichier cible :")
         self.file_entry = ttk.Entry(self)
-        #TODO: remove
-        self.file_entry.insert(0, "C:/Users/loict/Desktop/PyFusion/PyFusion/__main__.py")
         self.file_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.search_file)
 
         self.folder_label = ttk.Label(self, text = "Choisissez le dossier cible :")
         self.folder_entry = ttk.Entry(self)
-        #TODO: remove
-        self.folder_entry.insert(0, "C:/Users/loict/Desktop/Nouveau dossier")
         self.folder_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.search_directory )
 
         self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = self.managed_execute_button)
         self.result_label = ttk.Label(self, text = "")
         self.place_widgets()
+
+        #TODO: remove
+        if os == "Darwin":
+            self.file_entry.insert(0, "/Users/loictonneau/Desktop/PyFusion/Pyfusion/merged_scripts/merged_scripts.py")
+            self.folder_entry.insert(0, "/Users/loictonneau/Desktop/untitled folder")
+        elif os == "Windows":
+            self.file_entry.insert(0, "C:/Users/loict/Desktop/PyFusion/PyFusion/merged_scripts/merged_scripts.py")
+            self.folder_entry.insert(0, "C:/Users/loict/Desktop/Nouveau dossier")
     
     def place_widgets(self) -> None:
         self.file_label.grid(columnspan = 2, row = 0)

@@ -22,7 +22,7 @@ class ScriptFusionApp(ttk.Labelframe):
         create_widgets(): Creates and places GUI widgets.
         place_widgets(): Places widgets within the grid.
     """
-    def __init__(self, master: ttk.Window) -> None:
+    def __init__(self, master: ttk.Window, os) -> None:
         """
         Initialize the ScriptFusionApp.
 
@@ -33,6 +33,7 @@ class ScriptFusionApp(ttk.Labelframe):
             None
         """
         self.master = master
+        self.os = os
         super().__init__(self.master, text = from_class_name_to_str(self.__class__.__name__))
         self.configure_grid()
         self.create_widgets()
@@ -92,7 +93,8 @@ class ScriptFusionApp(ttk.Labelframe):
         self.result_label.grid(columnspan = 2, row = 3)
 
     def manage_execute(self):
-        ScriptFusion (self.folder_entry, self.result_label)
+        ScriptFusion (self.folder_entry, self.result_label, self.os)
 
     def open_directory(self):
         self.folder_entry.insert(tk.END, filedialog.askdirectory())
+
