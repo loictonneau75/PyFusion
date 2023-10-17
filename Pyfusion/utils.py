@@ -2,12 +2,8 @@ import re
 
 
 def from_class_name_to_str(nom):
-    # Enlever "App" à la fin
-    #nom = nom.replace("App", "")
-    
-    # Insérer un espace avant chaque majuscule, sauf s'il s'agit du premier caractère
+    nom = nom.replace("App", "")
     nom = re.sub(r'(?<=[a-z])([A-Z])', r' \1', nom).lower()
-    
     return nom
 
 def is_os_light_mode(os):
@@ -16,8 +12,7 @@ def is_os_light_mode(os):
                 return is_os_light_mode_windows()
             case "Darwin":
                 return is_os_light_mode_mac()
-            
-            
+
 def is_os_light_mode_windows():
     import winreg
     try:

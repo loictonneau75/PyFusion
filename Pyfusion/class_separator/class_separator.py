@@ -47,20 +47,16 @@ class ClassSeparator():
             self.process_class_statement(text)
             self.process_functions_statement(text)
         self.tree_structure = self.master.master.go_to_new_app(TreeStructureApp, dict = {"classes" : self.classes, "utils" :self.utils})
-            #print(f"docstring\n{self.dockstring}\nimport\n{list(self.imports.keys())}\nstart snippet\n{self.starting_snippet}\nutils\n{list(self.utils.keys())}\nclass\n{list(self.classes.keys())}")
 
     def process_dockstring_statement(self, text: list, is_started: bool, is_inside: bool) -> None:
         for line in text:
             if not is_started:
                 if line == '"""':
                     is_inside = not is_inside
-
                     if not is_inside:
                         is_started = True
-
                     self.dockstring.append(line)
                     continue
-
                 if is_inside:
                     self.dockstring.append(line)
                     continue
@@ -95,26 +91,20 @@ class ClassSeparator():
         inside_class = False
         current_class_content = []
         class_name = None
-
         for line in text:
             stripped_line = line.strip()
-
             if line in self.dockstring or line in self.imports or line in self.starting_snippet:
                 continue
-
             if stripped_line.startswith("class "):
                 if inside_class:
                     self.classes[class_name] = current_class_content
                     current_class_content = []
-
                 class_name = stripped_line.split(':')[0].split()[1]
                 class_name = re.sub(r'\(.*\)', '', class_name)
                 class_name = re.sub(r'(?<=[a-z])(?=[A-Z])', '_', class_name).lower()
                 inside_class = True
-
             if inside_class:
                 current_class_content.append(line)
-
         if current_class_content:
             self.classes[class_name] = current_class_content
 
@@ -122,32 +112,24 @@ class ClassSeparator():
         inside_function = False
         current_function_content = []
         function_name = None
-
         for i, line in enumerate(text):
             stripped_line = line.strip()
-
             if line in self.dockstring or line in self.imports or line in self.starting_snippet:
                 continue
-
             if stripped_line.startswith("def "):
                 if inside_function:
                     self.utils[function_name] = current_function_content
                     current_function_content = []
-
                 indent_level = len(line) - len(line.lstrip())
                 is_inside_class = any(text[j].strip().startswith("class ") and len(text[j]) - len(text[j].lstrip()) < indent_level for j in range(i))
-
                 if not is_inside_class:
                     function_name = stripped_line.split('(')[0].split()[1]
                     inside_function = True
-
             if inside_function:
                 current_function_content.append(line)
-
             if stripped_line.startswith("class ") and inside_function:
                 self.utils[function_name] = current_function_content
                 current_function_content = []
                 inside_function = False
-
         if current_function_content:
             self.utils[function_name] = current_function_content
