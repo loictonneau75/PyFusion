@@ -35,7 +35,7 @@ class TreeStructureApp(ttk.Labelframe):
         self.button_fram = ttk.Frame(self)
         self.add_folder_button = ttk.Button(self.button_fram, text = "Ajouter", command = self.button_pressed_add_new_folder)
         self.delete_folder_button = ttk.Button(self.button_fram, text = "Supprimer", command = self.button_pressed_delete_selected_folder, state = tk.DISABLED)
-        self.modify_folder_button = ttk.Button(self.button_fram,text = "Modifier", state = tk.DISABLED)
+        self.modify_folder_button = ttk.Button(self.button_fram,text = "Modifier", command = self.button_pressed_modify_selected_folder, state = tk.DISABLED)
         self.place_widgets()
 
     def place_widgets(self) -> None:
@@ -51,6 +51,7 @@ class TreeStructureApp(ttk.Labelframe):
         if origin == self.root_folder:
             path = "./" + name
         else:
+            print(f"origin {origin}")
             parent_path = self.tree_view_repositery.item(origin)["values"][1]
             path = parent_path + "/" + name
         self.tree_view_repositery.insert(origin, tk.END, text=name, values=(name, path))
@@ -64,7 +65,6 @@ class TreeStructureApp(ttk.Labelframe):
         dialog = AddFolderDialog(self)
         if dialog.result:  
             new_folder_name, parent_folder_path = dialog.result
-            print (f"parent folder path dans button pressed add new folder : {parent_folder_path}")
             if parent_folder_path == ".":
                 parent_id = self.root_folder
             else:
@@ -76,13 +76,22 @@ class TreeStructureApp(ttk.Labelframe):
 
    
     def button_pressed_modify_selected_folder(self):
-        pass 
+        selected_item = self.tree_view_repositery.selection()[0]
+        is_root_folder = True if selected_item == self.root_folder else False
+        dialog = ModifyFolderDialog(self)
+        if dialog.result:
+            if is_root_folder :
+                new_name = dialog.result
+            else:
+                new_name, new_parent_folder = dialog.result
+                print(self.tree_view_repositery.item())
+                #self.tree_view_repositery.move(selected_item,self.tree_view_repositery.item(new_parent_folder))
 
     def on_folder_select(self, event: tk.Event):
-        selected_item = self.tree_view_repositery.selection()
+        selected_item = self.tree_view_repositery.selection()[0]
         if selected_item :
             self.modify_folder_button.config(state = tk.NORMAL)
-            if selected_item[0] != self.root_folder:
+            if selected_item != self.root_folder:
                 self.delete_folder_button.config(state = tk.NORMAL)
             else:
                 self.delete_folder_button.config(state = tk.DISABLED)
@@ -119,8 +128,8 @@ class AddFolderDialog(simpledialog.Dialog):
         self.folder_name_label = ttk.Label(self.parent, text = "Nom du dossier :")
         self.folder_name_entry = ttk.Entry(self.parent)
         self.parent_folder_choice_label = ttk.Label(self.parent, text = "Dossier parent :")
-        self.existing_folders = self.master.get_all_folders()
-        self.parent_folder_choice = ttk.Combobox(self.parent, values = self.existing_folders)
+        existing_folders = self.master.get_all_folders()
+        self.parent_folder_choice = ttk.Combobox(self.parent, values = existing_folders)
 
     def place_widget(self):
         self.folder_name_label.grid(row = 0, column = 0, sticky = tk.W, padx = 5, pady = 5)
@@ -130,9 +139,9 @@ class AddFolderDialog(simpledialog.Dialog):
 
     def buttonbox(self) -> None:
         box = Frame(self)
-        ok_button = ttk.Button(box, text="OK", width=10, command=self.ok)
+        ok_button = ttk.Button(box, text="Validé", width=10, command=self.ok)
         ok_button.pack(side = tk.LEFT, padx = 5, pady = 5)
-        cancel_button = ttk.Button(box, text = "Cancel", width = 10, command = self.cancel,)
+        cancel_button = ttk.Button(box, text = "Annulé", width = 10, command = self.cancel,)
         cancel_button.pack(side = tk.LEFT, padx = 5, pady = 5)
         self.bind("<Return>", self.ok)
         self.bind("<Escape>", self.cancel)
@@ -140,4 +149,52 @@ class AddFolderDialog(simpledialog.Dialog):
 
     def apply(self) -> None:
         self.result = (self.folder_name_entry.get(), self.parent_folder_choice.get())
-        
+
+
+class ModifyFolderDialog(simpledialog.Dialog):
+
+    def body(self, parent) -> Misc | None:
+        self.parent = parent
+        root_directory = self.master.root_folder
+        self.tree_view_repositery = self.master.tree_view_repositery
+        self.selected_item = self.tree_view_repositery.selection()[0]
+        self.is_root_directory = self.selected_item == root_directory
+        self.create_widget()
+        self.place_widget()
+
+    def create_widget(self):
+        selected_item_path = self.tree_view_repositery.item(self.selected_item)["values"][1]
+        self.actual_path_label = ttk.Label(self.parent, text = "chemin actuel :")
+        self.actual_path = ttk.Label(self.parent, text = selected_item_path)
+        self.new_name_label = ttk.Label(self.parent, text = "nouveau nom :")
+        self.new_name_entry = ttk.Entry(self.parent)
+        if not self.is_root_directory:
+            self.new_parent_folder_label = ttk.Label(self.parent, text = "nouveau dossier parent")
+            existing_folders = self.master.get_all_folders()
+            existing_folders.remove(selected_item_path)
+            self.new_parent_folder_entry = ttk.Combobox(self.parent, values = existing_folders)
+
+    def place_widget(self):
+        self.actual_path_label.grid(column = 0, row = 0, sticky = tk.E, padx = 5, pady = 5)
+        self.actual_path.grid(column = 1, row = 0,sticky = tk.W, padx = 5, pady = 5)
+        self.new_name_label.grid(column = 0, row = 1, sticky = tk.W, padx = 5, pady = 5)
+        self.new_name_entry.grid(column = 1, row = 1, padx = 5, pady = 5)
+        if not self.is_root_directory:
+            self.new_parent_folder_label.grid(column = 0, row = 2, sticky = tk.W, padx = 5, pady = 5)
+            self.new_parent_folder_entry.grid(column = 1, row = 2, padx = 5, pady = 5)
+
+    def buttonbox(self) -> None:
+        box = Frame(self)
+        ok_button = ttk.Button(box, text="Validé", width=10, command=self.ok)
+        ok_button.pack(side = tk.LEFT, padx = 5, pady = 5)
+        cancel_button = ttk.Button(box, text = "Annulé", width = 10, command = self.cancel,)
+        cancel_button.pack(side = tk.LEFT, padx = 5, pady = 5)
+        self.bind("<Return>", self.ok)
+        self.bind("<Escape>", self.cancel)
+        box.pack()
+
+    def apply(self):
+        if self.is_root_directory:
+            self.result = self.new_name_entry.get()
+        else :
+            self.result = (self.new_name_entry.get(), self.new_parent_folder_entry.get())
