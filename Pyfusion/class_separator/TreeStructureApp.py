@@ -109,14 +109,26 @@ class TreeStructureApp(ttk.Labelframe):
             self.delete_folder_button.config(state = tk.DISABLED)
             self.modify_folder_button.config(state = tk.DISABLED)
 
-    def get_all_folders(self, node = ''):
+    def get_all_folders(self, node='', exclude_node=None):
         folders = []
+
+        # Si le nœud actuel est le nœud à exclure, on retourne une liste vide
+        if node == exclude_node:
+            return []
+
         for child in self.tree_view_repositery.get_children(node):
             item_values = self.tree_view_repositery.item(child)["values"]
             folder_path = item_values[1] if item_values else ""
-            folders.append(folder_path)
-            folders.extend(self.get_all_folders(child))
+            
+            # Si le chemin de l'enfant n'est pas celui à exclure, l'ajouter à la liste
+            if child != exclude_node:
+                folders.append(folder_path)
+            
+            # Appel récursif pour les enfants
+            folders.extend(self.get_all_folders(child, exclude_node=exclude_node))
+
         return folders
+
     
     def find_parent_id(self, parent_name, node = ''):
         for child_id in self.tree_view_repositery.get_children(node):
@@ -139,9 +151,9 @@ class AddFolderDialog(simpledialog.Dialog):
         self.folder_name_entry = ttk.Entry(self.parent)
         self.parent_folder_choice_label = ttk.Label(self.parent, text = "Dossier parent :")
         existing_folders: list = self.master.get_all_folders()
-        parent_folder_selected = tk.StringVar(self.parent)
-        parent_folder_selected.set(existing_folders[0])
-        self.parent_folder_selection = ttk.OptionMenu(self.parent, parent_folder_selected, existing_folders[0], *existing_folders)
+        self.parent_folder_selected = tk.StringVar(self.parent)
+        self.parent_folder_selected.set(existing_folders[0])
+        self.parent_folder_selection = ttk.OptionMenu(self.parent, self.parent_folder_selected, existing_folders[0], *existing_folders)
 
     def place_widget(self):
         self.folder_name_label.grid(row = 0, column = 0, sticky = tk.W, padx = 5, pady = 5)
@@ -160,7 +172,7 @@ class AddFolderDialog(simpledialog.Dialog):
         box.pack()
 
     def apply(self) -> None:
-        self.result = (self.folder_name_entry.get(), self.parent_folder_selection.get())
+        self.result = (self.folder_name_entry.get(), self.parent_folder_selected.get())
 
 
 class ModifyFolderDialog(simpledialog.Dialog):
@@ -182,7 +194,7 @@ class ModifyFolderDialog(simpledialog.Dialog):
         self.new_name_entry = ttk.Entry(self.parent)
         if not self.is_root_directory:
             self.new_parent_folder_label = ttk.Label(self.parent, text = "nouveau dossier parent")
-            existing_folders = self.master.get_all_folders()
+            existing_folders = self.master.get_all_folders(exclude_node = self.selected_item)
             self.new_parent_folder_entry = ttk.Combobox(self.parent, values = existing_folders)
 
     def place_widget(self):
