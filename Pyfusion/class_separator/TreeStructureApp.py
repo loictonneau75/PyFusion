@@ -21,6 +21,7 @@ class TreeStructureApp(ttk.Frame):
         self._create_tree_view_repositery()
         self._create_file_arrangement_frame()
         self._create_button_frame()
+        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success")
         self.place_widgets()
         self.update_comboboxes()
 
@@ -33,17 +34,12 @@ class TreeStructureApp(ttk.Frame):
         self.tree_view_repositery.heading("path", text = "chemin")
         self.tree_view_repositery.bind("<<TreeviewSelect>>", self.on_folder_select)
         self.root_folder = self.tree_view_repositery.insert("", tk.END, text = ".", values = (".", "."))
+        self.expand_treeview()
 
-        #TODO : a retirer
-        self.essaie = self.add_folder("essaie",self.root_folder)
-        self.essai2 = self.add_folder("bonjour", origin = self.essaie)
-
-        self.expand_all_nodes()
-
-    def expand_all_nodes(self, node=""):
+    def expand_treeview(self, node=""):
         for child in self.tree_view_repositery.get_children(node):
-            self.tree_view_repositery.item(child, open=True)  # Ouvre le nœud
-            self.expand_all_nodes(child) 
+            self.tree_view_repositery.item(child, open=True)
+            self.expand_treeview(child) 
 
     def _create_file_arrangement_frame(self):
         self.file_arrangement_frame = ttk.Frame(self)
@@ -84,6 +80,10 @@ class TreeStructureApp(ttk.Frame):
         self.button_fram.grid(row = 0, column = 1)
         self.file_arrangement_frame.grid(row = 1, columnspan = 2)
         self._place_widget_in_file_arrangement_frame()
+        self._place_button_in_button_frame()
+        self.execute_button.grid(columnspan = 2, row = 2)
+
+    def _place_button_in_button_frame(self):
         self.add_folder_button.pack()
         self.delete_folder_button.pack()
         self.modify_folder_button.pack()
@@ -112,7 +112,7 @@ class TreeStructureApp(ttk.Frame):
         if selected_item and selected_item != self.root_folder:
             self.tree_view_repositery.delete(selected_item)
         self.update_comboboxes()
-        self.expand_all_nodes()
+        self.expand_treeview()
 
     def button_pressed_add_new_folder(self):
         dialog = AddFolderDialog(self)
@@ -127,10 +127,8 @@ class TreeStructureApp(ttk.Frame):
                 return
             self.add_folder(new_folder_name, origin = parent_id)
             self.update_comboboxes()
-            self.expand_all_nodes()
+            self.expand_treeview()
 
-
-   
     def button_pressed_modify_selected_folder(self):
         selected_item = self.tree_view_repositery.selection()[0]
         is_root_folder = True if selected_item == self.root_folder else False
@@ -141,7 +139,6 @@ class TreeStructureApp(ttk.Frame):
             else:
                 new_name, new_parent_folder_path = dialog.result
                 new_parent_folder = self.find_parent_id(new_parent_folder_path)
-            
             if new_name != "":
                 self.tree_view_repositery.item(selected_item, text = new_name, values = (new_name, self.tree_view_repositery.item(selected_item, "values")[1]))
 
@@ -153,8 +150,7 @@ class TreeStructureApp(ttk.Frame):
                 self.tree_view_repositery.move(selected_item, new_parent_folder,tk.END)
                 self.tree_view_repositery.item(selected_item, values = (self.tree_view_repositery.item(selected_item, "values")[0], new_path))
             self.update_comboboxes()
-            self.expand_all_nodes()
-
+            self.expand_treeview()
 
     def on_folder_select(self, event: tk.Event):
         selected_item = self.tree_view_repositery.selection()[0]
@@ -189,8 +185,8 @@ class TreeStructureApp(ttk.Frame):
                 return result
         return None
 
-class AddFolderDialog(simpledialog.Dialog):
 
+class AddFolderDialog(simpledialog.Dialog):
     def body(self, parent: Frame) -> Misc | None:
         self.parent = parent
         self.create_widget()
@@ -226,7 +222,6 @@ class AddFolderDialog(simpledialog.Dialog):
 
 
 class ModifyFolderDialog(simpledialog.Dialog):
-
     def body(self, parent) -> Misc | None:
         self.parent = parent
         root_directory = self.master.root_folder

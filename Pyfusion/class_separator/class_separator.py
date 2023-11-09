@@ -19,6 +19,7 @@ class ClassSeparator():
             self.utils = {}
             self.tree_structure = None
             self.file_separator()
+        print(self.classes.keys())
 
     def check_input(self) -> bool:
         if not self.file:
