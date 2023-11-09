@@ -28,7 +28,7 @@ class TreeStructureApp(ttk.Frame):
         self._create_tree_view_repositery()
         self._create_file_arrangement_frame()
         self._create_button_frame()
-        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = lambda: TreeStructure(self.data))
+        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = lambda: TreeStructure(self.data, self.file_arrangement_dict_widget))
         self.place_widgets()
         self.update_comboboxes()
 
