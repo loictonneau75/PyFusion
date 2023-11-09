@@ -6,10 +6,10 @@ from tkinter import filedialog
 from class_separator.class_separator import ClassSeparator
 from utils import from_class_name_to_str
 
-class ClassSeparatorApp(ttk.Labelframe):
-    def __init__(self, master: ttk.Window, os) -> None: #TODO : retirer os
+class ClassSeparatorApp(ttk.Frame):
+    def __init__(self, master: ttk.Window, os) -> None:
         self.master = master
-        super().__init__(self.master, text = from_class_name_to_str(self.__class__.__name__))
+        super().__init__(self.master, name = from_class_name_to_str(self.__class__.__name__))
         self.configure_grid()
         self.create_widgets(os)
         self.pack()
@@ -24,7 +24,7 @@ class ClassSeparatorApp(ttk.Labelframe):
         self.rowconfigure(4, pad = 10)
         self.rowconfigure(5, pad = 10)
 
-    def create_widgets(self, os) -> None: #TODO : retirer os
+    def create_widgets(self, os) -> None:
         self.file_label = ttk.Label(self, text = "Choisissez le fichier cible :")
         self.file_entry = ttk.Entry(self)
         self.file_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.search_file)
@@ -35,7 +35,6 @@ class ClassSeparatorApp(ttk.Labelframe):
         self.result_label = ttk.Label(self, text = "")
         self.place_widgets()
 
-        #TODO: remove
         if os == "Darwin":
             self.file_entry.insert(0, "/Users/loictonneau/Desktop/PyFusion/Pyfusion/merged_scripts/merged_scripts.py")
             self.folder_entry.insert(0, "/Users/loictonneau/Desktop/untitled folder")
@@ -57,7 +56,9 @@ class ClassSeparatorApp(ttk.Labelframe):
         ClassSeparator(self.master, self.file_entry, self.folder_entry, self.result_label)
 
     def search_directory(self):
+        self.folder_entry.delete(0, tk.END)
         self.folder_entry.insert(tk.END, filedialog.askdirectory())
 
     def search_file(self):
+        self.file_entry.delete(0, tk.END)
         self.file_entry.insert(tk.END, filedialog.askopenfilename())

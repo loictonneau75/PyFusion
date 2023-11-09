@@ -4,6 +4,7 @@ import ttkbootstrap as ttk
 
 class ScriptFusion ():
     def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label, os , extension = ".py") -> None:
+        #TODO : rendre possible le script avec d'autre language doinc en changeant l'extension
         self.root_directory = folder_entry.get()
         self.target_directory = self.find_script_directory()
         self.label = result_label
@@ -48,12 +49,12 @@ class ScriptFusion ():
         gitignore_path = os.path.join(self.root_directory, '.gitignore')
         ignore_line = f'{self.output_directory_name}/'
         if os.path.exists(gitignore_path):
-            with open(gitignore_path, 'r') as f:
-                lines = f.readlines()
+            with open(gitignore_path, 'r') as gitignore:
+                lines = gitignore.readlines()
             if any(ignore_line in line for line in lines):
                 return
-        with open(gitignore_path, 'a') as f:
-           f.write(f'\n{ignore_line}\n')
+        with open(gitignore_path, 'a') as gitignore:
+           gitignore.write(f'\n{ignore_line}\n')
 
     def create_output_directory(self) -> None:
         if not os.path.exists(self.output_directory_path):
@@ -61,6 +62,7 @@ class ScriptFusion ():
         self.add_ligne_gitignore()
 
     def find_python_files_in_directory(self) -> None:
+        #TODO : enlever les fichier test
         for root, _, files in os.walk(self.target_directory):
             for file in files:
                 if file.endswith(self.extension):

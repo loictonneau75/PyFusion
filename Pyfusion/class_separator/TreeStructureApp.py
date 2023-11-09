@@ -3,50 +3,101 @@ import tkinter as tk
 from tkinter import Frame, Misc, simpledialog, messagebox
 from utils import from_class_name_to_str
 
-class TreeStructureApp(ttk.Labelframe):
+class TreeStructureApp(ttk.Frame):
     def __init__(self, master: ttk.Window, data: dict) -> None:
         self.master = master
-        super().__init__(self.master, text=from_class_name_to_str(self.__class__.__name__))
-        self.classes = data.get("classes", {})
-        self.utils = data.get("utils", None)
+        super().__init__(self.master, name = from_class_name_to_str(self.__class__.__name__))
+        self.classes : dict = data.get("classes", {})
+        self.utils = data.get("utils", {})
         self.configure_grid()
         self.create_widgets()
         self.pack()
 
     def configure_grid(self) -> None:
+        #TODO : configurer la grille
         pass 
 
     def create_widgets(self) -> None:
-        self.file_labelframe = ttk.LabelFrame(self, text = "liste des fichiers")
+        self._create_tree_view_repositery()
+        self._create_file_arrangement_frame()
+        self._create_button_frame()
+        self.place_widgets()
+        self.update_comboboxes()
 
-        #TODO : ajouter le fichier utils et main si ils n'existent pas encore
-        self.file_name = ttk.Label(self.file_labelframe, text = "\n".join(key for key in self.classes.keys()))
-        
-        self.tree_view_repositery = ttk.Treeview(self, columns=("name", "path"))
+    def _create_tree_view_repositery(self):
+        self.file_labelframe = ttk.LabelFrame(self, text = "liste des fichiers")
+        self.file_list = self.create_file_list()
+        self.tree_view_repositery = ttk.Treeview(self, columns = ("name", "path"), show = "tree headings")
         self.tree_view_repositery.heading("#0", text = "Structure")
-        self.tree_view_repositery.heading("#1", text = "Nom du Dossier")
-        self.tree_view_repositery.heading("#2", text = "chemin")
+        self.tree_view_repositery.heading("name", text = "Nom du Dossier")
+        self.tree_view_repositery.heading("path", text = "chemin")
         self.tree_view_repositery.bind("<<TreeviewSelect>>", self.on_folder_select)
-        self.root_folder = self.tree_view_repositery.insert("", tk.END, text = ".", values = (".", "./"))
+        self.root_folder = self.tree_view_repositery.insert("", tk.END, text = ".", values = (".", "."))
 
         #TODO : a retirer
         self.essaie = self.add_folder("essaie",self.root_folder)
         self.essai2 = self.add_folder("bonjour", origin = self.essaie)
 
+        self.expand_all_nodes()
+
+    def expand_all_nodes(self, node=""):
+        for child in self.tree_view_repositery.get_children(node):
+            self.tree_view_repositery.item(child, open=True)  # Ouvre le nœud
+            self.expand_all_nodes(child) 
+
+    def _create_file_arrangement_frame(self):
+        self.file_arrangement_frame = ttk.Frame(self)
+        self.file_arrangement_dict = {}
+        for file in self.file_list:
+            file_name = file + "_file"
+            repo_name = file + "_repositery"
+            self.file_arrangement_dict[file_name] = repo_name
+            self.__setattr__(file_name, ttk.Label(self.file_arrangement_frame, text = file))
+            self.__setattr__(repo_name, ttk.Combobox(self.file_arrangement_frame))
+
+    def _create_button_frame(self):
         self.button_fram = ttk.Frame(self)
         self.add_folder_button = ttk.Button(self.button_fram, text = "Ajouter", command = self.button_pressed_add_new_folder)
         self.delete_folder_button = ttk.Button(self.button_fram, text = "Supprimer", command = self.button_pressed_delete_selected_folder, state = tk.DISABLED)
         self.modify_folder_button = ttk.Button(self.button_fram,text = "Modifier", command = self.button_pressed_modify_selected_folder, state = tk.DISABLED)
-        self.place_widgets()
+
+    def create_file_list(self):
+        all_file_list = list(self.classes.keys())
+        all_file_list.sort()
+        if len(self.utils) > 0 and "utils" not in all_file_list:
+            all_file_list.insert(0, "utils")
+        if "main" not in all_file_list:
+            all_file_list.insert(0, "main")
+        else :
+            all_file_list.remove("main")
+            all_file_list.insert(0, "main")
+        return all_file_list
+
+    def update_comboboxes(self, new_combo=None):
+        folder_names = self.get_all_folders()
+        for combobox in [getattr(self, attr) for attr in self.file_arrangement_dict.values()]:
+            combobox.set("choose folder")
+            combobox["values"] = folder_names
 
     def place_widgets(self) -> None:
-        self.file_labelframe.grid(row = 0, column = 0)
-        self.tree_view_repositery.grid(row = 0, column = 1)
-        self.button_fram.grid(row = 0, rowspan = 2, column =3)
+        self.tree_view_repositery.grid(row = 0, column = 0)
+        self.button_fram.grid(row = 0, column = 1)
+        self.file_arrangement_frame.grid(row = 1, columnspan = 2)
+        self._place_widget_in_file_arrangement_frame()
         self.add_folder_button.pack()
         self.delete_folder_button.pack()
         self.modify_folder_button.pack()
-        self.file_name.pack()
+
+    def _place_widget_in_file_arrangement_frame(self):
+        i = 0
+        j = 0
+        for label_name, combobox_name in self.file_arrangement_dict.items():
+            label_widget = getattr(self, label_name)
+            combobox_widget = getattr(self, combobox_name)
+            label_widget.grid(row=i, column=0)
+            combobox_widget.grid(row=j, column=1)
+            i += 1
+            j += 1
 
     def add_folder(self, name: str, origin):
         if origin == self.root_folder:
@@ -60,6 +111,8 @@ class TreeStructureApp(ttk.Labelframe):
         selected_item = self.tree_view_repositery.selection()[0]
         if selected_item and selected_item != self.root_folder:
             self.tree_view_repositery.delete(selected_item)
+        self.update_comboboxes()
+        self.expand_all_nodes()
 
     def button_pressed_add_new_folder(self):
         dialog = AddFolderDialog(self)
@@ -73,6 +126,9 @@ class TreeStructureApp(ttk.Labelframe):
                 messagebox.showerror("Erreur", "Dossier parent non trouvé!")
                 return
             self.add_folder(new_folder_name, origin = parent_id)
+            self.update_comboboxes()
+            self.expand_all_nodes()
+
 
    
     def button_pressed_modify_selected_folder(self):
@@ -96,6 +152,9 @@ class TreeStructureApp(ttk.Labelframe):
                     new_path = new_parent_folder_path + "/" + new_name
                 self.tree_view_repositery.move(selected_item, new_parent_folder,tk.END)
                 self.tree_view_repositery.item(selected_item, values = (self.tree_view_repositery.item(selected_item, "values")[0], new_path))
+            self.update_comboboxes()
+            self.expand_all_nodes()
+
 
     def on_folder_select(self, event: tk.Event):
         selected_item = self.tree_view_repositery.selection()[0]
@@ -111,25 +170,16 @@ class TreeStructureApp(ttk.Labelframe):
 
     def get_all_folders(self, node='', exclude_node=None):
         folders = []
-
-        # Si le nœud actuel est le nœud à exclure, on retourne une liste vide
         if node == exclude_node:
             return []
-
         for child in self.tree_view_repositery.get_children(node):
             item_values = self.tree_view_repositery.item(child)["values"]
             folder_path = item_values[1] if item_values else ""
-            
-            # Si le chemin de l'enfant n'est pas celui à exclure, l'ajouter à la liste
             if child != exclude_node:
-                folders.append(folder_path)
-            
-            # Appel récursif pour les enfants
+                folders.append(folder_path)  
             folders.extend(self.get_all_folders(child, exclude_node=exclude_node))
-
         return folders
 
-    
     def find_parent_id(self, parent_name, node = ''):
         for child_id in self.tree_view_repositery.get_children(node):
             if self.tree_view_repositery.item(child_id)["values"][1] == parent_name:

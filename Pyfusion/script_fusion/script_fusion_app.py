@@ -7,11 +7,11 @@ from script_fusion.script_fusion import ScriptFusion
 from utils import from_class_name_to_str
 
 
-class ScriptFusionApp(ttk.Labelframe):
+class ScriptFusionApp(ttk.Frame):
     def __init__(self, master: ttk.Window, os) -> None:
         self.master = master
         self.os = os
-        super().__init__(self.master, text = from_class_name_to_str(self.__class__.__name__))
+        super().__init__(self.master, name = from_class_name_to_str(self.__class__.__name__))
         self.configure_grid()
         self.create_widgets()
         self.pack()

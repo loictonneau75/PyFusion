@@ -193,3 +193,4 @@ pyrightconfig.json
 **/.DS_Store
 
 merged_scripts/
+test/
