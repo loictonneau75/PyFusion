@@ -1,27 +1,34 @@
 import ttkbootstrap as ttk
 import tkinter as tk
+
 from tkinter import Frame, Misc, simpledialog, messagebox
+
+from class_separator.TreeStructure import TreeStructure
 from utils import from_class_name_to_str
 
 class TreeStructureApp(ttk.Frame):
     def __init__(self, master: ttk.Window, data: dict) -> None:
         self.master = master
         super().__init__(self.master, name = from_class_name_to_str(self.__class__.__name__))
-        self.classes : dict = data.get("classes", {})
-        self.utils = data.get("utils", {})
+        self.data = data
+        self.classes : dict = self.data.get("classes", {})
+        self.utils = self.data.get("utils", {})
         self.configure_grid()
         self.create_widgets()
         self.pack()
 
     def configure_grid(self) -> None:
-        #TODO : configurer la grille
-        pass 
+        self.columnconfigure(0, pad = 10)
+        self.columnconfigure(1, pad = 10)
+        self.rowconfigure(0, pad = 10)
+        self.rowconfigure(1, pad = 10)
+        self.rowconfigure(2, pad = 10)
 
     def create_widgets(self) -> None:
         self._create_tree_view_repositery()
         self._create_file_arrangement_frame()
         self._create_button_frame()
-        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success")
+        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = lambda: TreeStructure(self.data))
         self.place_widgets()
         self.update_comboboxes()
 
@@ -43,11 +50,11 @@ class TreeStructureApp(ttk.Frame):
 
     def _create_file_arrangement_frame(self):
         self.file_arrangement_frame = ttk.Frame(self)
-        self.file_arrangement_dict = {}
+        self.file_arrangement_dict_name = {}
         for file in self.file_list:
             file_name = file + "_file"
             repo_name = file + "_repositery"
-            self.file_arrangement_dict[file_name] = repo_name
+            self.file_arrangement_dict_name[file_name] = repo_name
             self.__setattr__(file_name, ttk.Label(self.file_arrangement_frame, text = file))
             self.__setattr__(repo_name, ttk.Combobox(self.file_arrangement_frame))
 
@@ -71,7 +78,7 @@ class TreeStructureApp(ttk.Frame):
 
     def update_comboboxes(self, new_combo=None):
         folder_names = self.get_all_folders()
-        for combobox in [getattr(self, attr) for attr in self.file_arrangement_dict.values()]:
+        for combobox in [getattr(self, attr) for attr in self.file_arrangement_dict_name.values()]:
             combobox.set("choose folder")
             combobox["values"] = folder_names
 
@@ -84,20 +91,25 @@ class TreeStructureApp(ttk.Frame):
         self.execute_button.grid(columnspan = 2, row = 2)
 
     def _place_button_in_button_frame(self):
-        self.add_folder_button.pack()
-        self.delete_folder_button.pack()
-        self.modify_folder_button.pack()
+        self.add_folder_button.pack(fill = tk.X, pady = (0, 5))
+        self.delete_folder_button.pack(fill = tk.X, pady = (0, 5))
+        self.modify_folder_button.pack(fill = tk.X, pady = (0, 5))
 
     def _place_widget_in_file_arrangement_frame(self):
         i = 0
         j = 0
-        for label_name, combobox_name in self.file_arrangement_dict.items():
-            label_widget = getattr(self, label_name)
-            combobox_widget = getattr(self, combobox_name)
-            label_widget.grid(row=i, column=0)
-            combobox_widget.grid(row=j, column=1)
+        self.from_name_to_widget()
+        for label, combobox in self.file_arrangement_dict_widget.items():
+            label.grid(row=i, column=0)
+            combobox.grid(row=j, column=1)
             i += 1
             j += 1
+
+    def from_name_to_widget(self):
+        self.file_arrangement_dict_widget = {}
+        for label_name, combobox_name in self.file_arrangement_dict_name.items():
+            self.file_arrangement_dict_widget[getattr(self, label_name)] = getattr(self, combobox_name)
+        return self.file_arrangement_dict_widget
 
     def add_folder(self, name: str, origin):
         if origin == self.root_folder:
