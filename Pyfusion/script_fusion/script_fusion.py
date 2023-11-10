@@ -3,28 +3,25 @@ import ttkbootstrap as ttk
 
 
 class ScriptFusion ():
-    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label, os , extension = ".py") -> None:
+    def __init__(self, folder_entry: ttk.Entry, result_label: ttk.Label, os: str, extension: str = ".py") -> None:
         #TODO : rendre possible le script avec d'autre language doinc en changeant l'extension
-        self.root_directory = folder_entry.get()
+        self.root_directory: str = folder_entry.get()
         self.target_directory = self.find_script_directory()
-        self.label = result_label
-        self.os = os
-        self.extension = extension
+        self.label: ttk.Label = result_label
+        self.os: str = os
+        self.extension: str = extension
         if self.check_input():
-            self.files_in_directory = []
-            self.path_files_in_directory = []
+            self.file_and_path_in_directory: dict[str, str] = {}
             self.initialize_directories_and_files()
-
-            self.presentation = []
-            self.imports = []
-            self.main_file_content = []
-            self.other_files_content = []
+            self.presentation: list[str] = []
+            self.imports: list[str] = []
+            self.main_file_content: list[str] = []
+            self.other_files_content: list[str] = []
             self.script_merger()
-            
             self.show_result()
 
     def find_script_directory(self) -> str:
-        target_base_name = os.path.basename(self.root_directory)
+        target_base_name: str = os.path.basename(self.root_directory)
         for root, dirs, _ in os.walk(self.root_directory):
             if target_base_name in dirs:
                 return os.path.join(root, target_base_name)
@@ -40,17 +37,17 @@ class ScriptFusion ():
         return  True
 
     def initialize_directories_and_files(self) -> None:
-        self.output_directory_name = "merged_scripts"
-        self.output_file_name = "merged_scripts.py"
-        self.output_directory_path = os.path.join(self.target_directory, self.output_directory_name)
-        self.output_file_path = os.path.join(self.output_directory_path,self.output_file_name)
+        self.output_directory_name: str = "merged_scripts"
+        self.output_file_name: str = "merged_scripts.py"
+        self.output_directory_path: str = os.path.join(self.target_directory, self.output_directory_name)
+        self.output_file_path: str = os.path.join(self.output_directory_path,self.output_file_name)
 
     def add_ligne_gitignore(self) -> None:
-        gitignore_path = os.path.join(self.root_directory, '.gitignore')
-        ignore_line = f'{self.output_directory_name}/'
+        gitignore_path: str = os.path.join(self.root_directory, '.gitignore')
+        ignore_line: str = f'{self.output_directory_name}/'
         if os.path.exists(gitignore_path):
             with open(gitignore_path, 'r') as gitignore:
-                lines = gitignore.readlines()
+                lines: list[str] = gitignore.readlines()
             if any(ignore_line in line for line in lines):
                 return
         with open(gitignore_path, 'a') as gitignore:
@@ -67,20 +64,19 @@ class ScriptFusion ():
             for file in files:
                 if file.endswith(self.extension):
                     file_name, _ = os.path.splitext(file)
-                    self.files_in_directory.append(file_name)
-                    self.path_files_in_directory.append(os.path.join(root, file))
+                    self.file_and_path_in_directory[file_name] = os.path.join(root, file)
 
-    def check_files_in_string(self, line: str):
-        return all(file not in line for file in self.files_in_directory)
+    def check_files_in_string(self, line: str) -> bool:
+        return all(file not in line for file in self.file_and_path_in_directory.keys())
 
-    def process_import_statement(self, line: str):
+    def process_import_statement(self, line: str) -> None:
         if line.startswith(("import","from")):
             if line not in self.imports and self.check_files_in_string(line):
                 self.imports.append(line)
 
-    def process_main_file(self, path: str, file: list):
-        docstring_started = False
-        inside_docstring = False
+    def process_main_file(self, file: list[str]) -> None:
+        docstring_started: bool = False
+        inside_docstring: bool = False
         for line in file:
             self.process_import_statement(line)
             striped_line = line.strip()
@@ -97,36 +93,38 @@ class ScriptFusion ():
             if not line.startswith(("import","from")):
                 self.main_file_content.append(line)
                 continue
+        self.main_file_content.append("\n")
 
-    def process_other_files(self, line: str):
+    def process_other_files(self, line: str) -> None:
             if not line.startswith(("import", "from")):
                 self.other_files_content.append(line)
 
-    def part_content_in_variable(self):
-        for path in self.path_files_in_directory:
+    def part_content_in_variable(self) -> None:
+        for path in self.file_and_path_in_directory.values():
             if not path.endswith(self.output_file_name):
                 with open(path, "r") as file:
                     if path.endswith("__main__.py"):
-                        self.process_main_file(path, file)
+                        self.process_main_file(file)
                     else:
                         for line in file:
                             self.process_import_statement(line)
                             self.process_other_files(line)
+                        self.other_files_content.append("\n")
 
-    def merge_variables_in_new_file(self):
+    def merge_variables_in_new_file(self) -> None:
         with open(self.output_file_path,"w") as output_file:
             output_file.writelines(self.presentation)
             output_file.writelines(self.imports)
             output_file.writelines(self.other_files_content)
             output_file.writelines(self.main_file_content)
 
-    def script_merger(self):
+    def script_merger(self) -> None:
         self.create_output_directory()
         self.find_python_files_in_directory()
         self.part_content_in_variable()
         self.merge_variables_in_new_file()
 
-    def show_result(self):
+    def show_result(self) -> None:
         self.label.config(text = "Script exécuté avec succès !")
         match self.os:
             case "Windows":

@@ -8,9 +8,9 @@ from utils import from_class_name_to_str
 
 
 class ScriptFusionApp(ttk.Frame):
-    def __init__(self, master: ttk.Window, os) -> None:
-        self.master = master
-        self.os = os
+    def __init__(self, master: ttk.Window, os: str) -> None:
+        self.master: ttk.Window = master
+        self.os: str = os
         super().__init__(self.master, name = from_class_name_to_str(self.__class__.__name__))
         self.configure_grid()
         self.create_widgets()
@@ -24,11 +24,11 @@ class ScriptFusionApp(ttk.Frame):
         self.rowconfigure(2, pad = 10)
 
     def create_widgets(self) -> None:
-        self.folder_label = ttk.Label(self, text = "Choisissez le dossier cible :")
-        self.folder_entry = ttk.Entry(self)
-        self.folder_button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.open_directory )
-        self.execute_button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = self.manage_execute )
-        self.result_label = ttk.Label(self, text = "")
+        self.folder_label: ttk.Label = ttk.Label(self, text = "Choisissez le dossier cible :")
+        self.folder_entry: ttk.Label = ttk.Entry(self)
+        self.folder_button: ttk.Button = ttk.Button(self, text = "Parcourir", bootstyle = "secondary", command = self.open_directory )
+        self.execute_button: ttk.Button = ttk.Button(self, text = "Éxécuter", bootstyle = "success", command = self.manage_execute )
+        self.result_label: ttk.Label = ttk.Label(self, text = "")
         self.place_widgets()
 
     def place_widgets(self) -> None:
@@ -38,9 +38,9 @@ class ScriptFusionApp(ttk.Frame):
         self.execute_button.grid(columnspan = 2, row = 2)
         self.result_label.grid(columnspan = 2, row = 3)
 
-    def manage_execute(self):
+    def manage_execute(self) -> None:
         ScriptFusion (self.folder_entry, self.result_label, self.os)
 
-    def open_directory(self):
+    def open_directory(self) -> None:
         self.folder_entry.insert(tk.END, filedialog.askdirectory())
 
